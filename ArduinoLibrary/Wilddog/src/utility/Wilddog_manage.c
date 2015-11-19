@@ -120,10 +120,7 @@ int manage_getSendPacket(char *dst,int *dstLen,Daemon_cmd_T cmd,unsigned long in
                 return -1;
             
            // sprintf(dst,"%s {\".cmd\":\"%d\",\".index\":\"%ld\"}",_BIN_PATH,cmd,index); 
-            
-            sprintf(dst,"%s \"{\\\".cmd\\\":\\\"%d\\\", \
-            \\\".index\\\":\\\"%ld\\\",\\\".data\\\":%s}\"",_BIN_PATH,\
-                cmd,index,p_data);    
+            sprintf(dst,"%s \"{\\\".cmd\\\":\\\"%d\\\",\\\".index\\\":\\\"%ld\\\",\\\".data\\\":%s}\"",_BIN_PATH,cmd,index,p_data);    
             break;
             
         case _CMD_PUSH:
@@ -201,7 +198,7 @@ int manage_handleReceive(const char *recv,unsigned long *p_index, int *p_error)
     *p_error = atoi(p_buf);
 
     /* get index*/
-    if( cmd != _CMD_INIT && 
+    if(// cmd != _CMD_INIT && 
         cmd != _CMD_DESTORY )
         {
         
@@ -211,7 +208,6 @@ int manage_handleReceive(const char *recv,unsigned long *p_index, int *p_error)
             goto _HANDLE_RECV_ERROR;
 
         *p_index = atoll(p_buf);
-        
     }
     
     switch(cmd)

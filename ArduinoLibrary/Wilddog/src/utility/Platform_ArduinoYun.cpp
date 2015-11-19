@@ -68,38 +68,39 @@ long int Platform_ArduinoYun::_platform_send(Daemon_cmd_T cmd,Wilddog_EventType_
 		
 		_p.runShellCommandAsynchronously(sendString);	
 		_p.flush();
-#if 1	
-
-		/* DEBUGing....*/
-		_print("\n cmd :");
-		Serial.print(cmd);
-		_print("\n event :");
-		Serial.print(event);
-		_print("\n index :");
-		Serial.print(index);
-
-		if(p_host)
+#if 0	
+		if(cmd != _CMD_NOTIFY)
 		{
-			_print("\n p_host :");
-			Serial.print(p_host);
-		}
-		if(src)
-		{
-			_print("\n data :");
-			Serial.print(src);
-		}
+			/* DEBUGing....*/
+			_print("\n cmd :");
+			Serial.print(cmd);
+			_print("\n event :");
+			Serial.print(event);
+			_print("\n index :");
+			Serial.print(index);
+
+			if(p_host)
+			{
+				_print("\n p_host :");
+				Serial.print(p_host);
+			}
+			if(src)
+			{
+				_print("\n data :");
+				Serial.print(src);
+			}
 
 
-		_print("\n src_len  :");
-		Serial.print(src_len);
-		
-		_print("\n malloc len :");
-		Serial.print(len);
-		_print("\n shell cmd 3 :");
-		_printArray(p_buf,strlen(p_buf));
-		_print("\n shell cmd len :");
-		Serial.print(strlen(p_buf));
-		
+			_print("\n src_len  :");
+			Serial.print(src_len);
+			
+			_print("\n malloc len :");
+			Serial.print(len);
+			_print("\n shell cmd 3 :");
+			_printArray(p_buf,strlen(p_buf));
+			_print("\n shell cmd len :");
+			Serial.print(strlen(p_buf));
+		}
 #endif
 	}
 	
@@ -113,18 +114,19 @@ int Platform_ArduinoYun::_platform_receives(Daemon_cmd_T *p_cmd,int *p_error)
 
   char *buffer = NULL;
   int len = 0,receiveLen = 0;
+  
   if( (receiveLen = _p.available()) > 0)
   {
-  
   		//_print(" receive data: \n");
-		
-  		buffer = (char*)malloc(receiveLen+1);
+		receiveLen +=128;
+  		buffer = (char*)malloc(receiveLen);
 		if(buffer == NULL)
 			return 0;
-		
+	
 		memset(buffer,0,receiveLen);
   		for(len = 0;_p.available() > 0;len++)
 	  	{
+	  	
 	  		if(len  < receiveLen)
 	  		{
 	  			char c;
@@ -133,8 +135,12 @@ int Platform_ArduinoYun::_platform_receives(Daemon_cmd_T *p_cmd,int *p_error)
 				Serial.print(c);
 	  			}
 	  	}
+		
 		*p_cmd = (Daemon_cmd_T)manage_handleReceive(buffer,&index,p_error);
-#if 1		
+#if 0		
+		_print("\n receive buf : \n");
+		_printArray(buffer,strlen(buffer));
+
 		_print(" \n _platform_receives cmd :\n");
 		Serial.print(*p_cmd,DEC);
 		_print(" \n _platform_receives index :\n");
@@ -143,7 +149,6 @@ int Platform_ArduinoYun::_platform_receives(Daemon_cmd_T *p_cmd,int *p_error)
 		Serial.print(*p_error,DEC);
 		_print("\tend \n");
 #endif		
-		
 		if(buffer)
 			free(buffer);
 
@@ -224,7 +229,8 @@ unsigned long Platform_ArduinoYun::platform_init(const char *url)
 			break;
 		}
 	}
-	/*get index.*/
+	/* sdk can't fix retransmit auth request cause receive two diff token.*/
+	delay(5500);
 	return index;
 }
 int Platform_ArduinoYun::platform_deinit(void)

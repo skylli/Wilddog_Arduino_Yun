@@ -59,9 +59,10 @@ char* strstr(const char *s1,const char *s2)
     for(;(p=strchr(p,*s2))!=0;p++)
     {
         if(strncmp(p,s2,len)==0)
-        return  (char*)p;
+            return  (char*)p;
     }
-return(NULL);
+    
+    return(NULL);
 }
 
 static const char *skip_space(const char *str)
@@ -103,7 +104,6 @@ long int atoll(const char *str)
 *                 *maxlen :  value's len
 * Return:     value's len
 */
-
 int sjson_get_value(const char *input, const char *name,
                         char *output, int *maxlen)
 {
@@ -111,12 +111,12 @@ int sjson_get_value(const char *input, const char *name,
     const char *p;
    // const char tmp = ':';
     char start = 0,end = 0,subItem = 0;
-    int i,res = -1;
+    int i;
     int len;
+    
     if(p_name == NULL)
         goto err1;
     
-    res = -2;
     end = '\"';
     p = skip_space(p_name);
     if( strncmp(p,":\"",sizeof(":\"")) == 0)
@@ -128,7 +128,6 @@ int sjson_get_value(const char *input, const char *name,
         
         while( *p!=':' && p!= NULL)
             p++;
-        res = -21;
 
         if(p == NULL)
             goto err1;
@@ -160,7 +159,6 @@ int sjson_get_value(const char *input, const char *name,
         }
         subItem = 0;
     }
-    res = -3;
 
     memset(output, 0, *maxlen);
     len = 0;
@@ -187,15 +185,13 @@ int sjson_get_value(const char *input, const char *name,
             }
         }
         
-        res = -31;
         output[i] = *p;
         p++;
         len++;
     }
     *maxlen = len;
-    return res;
-    //return len;
+    return len;
 err1:
-    return res;
+    return -1;
 }
 
