@@ -14,7 +14,7 @@ extern "C"
 * define the endian type
 */
 #ifndef WILDDOG_LITTLE_ENDIAN
-#define WILDDOG_LITTLE_ENDIAN 1
+#define WILDDOG_LITTLE_ENDIAN 0
 #endif
 /*
 * define the machine's address type

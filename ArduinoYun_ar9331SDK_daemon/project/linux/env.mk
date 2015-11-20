@@ -2,7 +2,7 @@
 # Top level pattern, include by Makefile of child directory
 # in which variable like TOPDIR, TARGET or LIB may be needed
 
-CC=gcc#mips-openwrt-linux-gcc
+CC=mips-openwrt-linux-gcc
 MAKE=make
 
 UNAR=ar x

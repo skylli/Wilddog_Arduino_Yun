@@ -12,7 +12,7 @@
 #include "wilddog.h"
 #include "utlist.h"
 
-#include "daemon.h"
+#include "wilddog_daemon.h"
 #define _DAEMON_SERVER_PORT (9527)
 #define _DAEMON_CLIENT_IP 	"127.0.0.1"
 #define _DAEMON_NODE_LEN    (127)
