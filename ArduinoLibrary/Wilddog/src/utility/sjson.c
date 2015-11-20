@@ -194,4 +194,41 @@ int sjson_get_value(const char *input, const char *name,
 err1:
     return -1;
 }
+/*
+* Function:    sjson_fillSlash
+* Description: fill slash in json
+* Input:      input :json ;  
+* Output:     dst :   ;
+*                 *dstLen :  value's len
+* Return:     dst's len
+*/
+int sjson_fillSlash(const char *src,char *dst,int *dstLen)
+{
+	char *p_src = src;
+	int i;
+	if(src == NULL || dst == NULL)
+		return ;
+
+	for(i=0;p_src != NULL;p_src++)
+	{
+		if(*p_src == '"'||  *p_src == '\\')
+		{
+			if(i> *dstLen)
+				goto _FILLSLASH_END;
+			dst[i] = '\\';
+			i++;
+		}	
+		if(i> *dstLen)
+			goto _FILLSLASH_END;
+		dst[i] = *p_src;
+		i++;
+		
+	}
+	
+_FILLSLASH_END:
+	*dstLen = i;
+	return i;
+	
+}
+
 

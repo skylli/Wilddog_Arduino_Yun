@@ -4,14 +4,9 @@
   Released into the public domain.
 */
 #include "Platform_ArduinoYun.h"
-//extern "C"
-//{
 #include "Wilddog_manage.h"
-//};
 #include "../Wilddog_config.h"
 
-//extern int sjson_get_value(const char *input, const char *name,
-//                        char *output, int *maxlen);
 						
 int Platform_ArduinoYun::initUrl_num = 0;
 
@@ -23,8 +18,8 @@ void Platform_ArduinoYun::_print(const char *src)
 
 void Platform_ArduinoYun::_printArray(const char *src,int len)
 {
-	Serial.write(src,len);
-	Serial.flush();
+    Serial.write(src,len);
+    Serial.flush();
 }
 Platform_ArduinoYun::Platform_ArduinoYun()
 {
@@ -32,7 +27,7 @@ Platform_ArduinoYun::Platform_ArduinoYun()
 }
 
 Platform_ArduinoYun::~Platform_ArduinoYun() {
-  _p.close();
+	_p.close();
 }
 /*
 */
@@ -112,29 +107,29 @@ int Platform_ArduinoYun::_platform_receives(Daemon_cmd_T *p_cmd,int *p_error)
 {
 
 
-  char *buffer = NULL;
-  int len = 0,receiveLen = 0;
-  
-  if( (receiveLen = _p.available()) > 0)
-  {
-  		//_print(" receive data: \n");
+	char *buffer = NULL;
+	int len = 0,receiveLen = 0;
+
+	if( (receiveLen = _p.available()) > 0)
+	{
+		//_print(" receive data: \n");
 		receiveLen +=128;
-  		buffer = (char*)malloc(receiveLen);
+		buffer = (char*)malloc(receiveLen);
 		if(buffer == NULL)
 			return 0;
-	
+
 		memset(buffer,0,receiveLen);
-  		for(len = 0;_p.available() > 0;len++)
-	  	{
-	  	
-	  		if(len  < receiveLen)
-	  		{
-	  			char c;
-	  			buffer[len]=_p.read();
-				c = buffer[len];
-				Serial.print(c);
-	  			}
-	  	}
+		for(len = 0;_p.available() > 0;len++)
+		{
+		
+			if(len  < receiveLen)
+			{
+				//char c;
+				buffer[len]=_p.read();
+				//c = buffer[len];
+				//Serial.print(c);
+			}
+		}
 		
 		*p_cmd = (Daemon_cmd_T)manage_handleReceive(buffer,&index,p_error);
 #if 0		
@@ -153,11 +148,11 @@ int Platform_ArduinoYun::_platform_receives(Daemon_cmd_T *p_cmd,int *p_error)
 			free(buffer);
 
 		return receiveLen;
-  	}
+	}
 
 	return 0;
 }
-void Platform_ArduinoYun::_nonBlockingReive()
+void Platform_ArduinoYun::_blockingReceive()
 {
 	int block_time = 0,error = 0;
 	Daemon_cmd_T cmd = _CMD_MAX;
@@ -175,7 +170,7 @@ void Platform_ArduinoYun::_nonBlockingReive()
 	}
 }
 
-void Platform_ArduinoYun::notifyRequest(unsigned long wd_index)
+void Platform_ArduinoYun::_notifyRequest(unsigned long wd_index)
 {
 	_platform_send(_CMD_NOTIFY,(Wilddog_EventType_T)0,wd_index,NULL,NULL);
 }
@@ -184,8 +179,8 @@ void Platform_ArduinoYun::trysync()
 {
 
 
-	_nonBlockingReive();
-	notifyRequest(index);
+	_blockingReceive();
+	_notifyRequest(index);
 
 }
 
@@ -259,7 +254,7 @@ int Platform_ArduinoYun::platform_deinit(void)
 		res = _platform_send(_CMD_DESTORY,(Wilddog_EventType_T)0,index,NULL,NULL);
 		if(res < 0 )
 			return -1;
-			
+		/*blocking and waitting for respond.*/		
 		while(1)
 		{
 			_platform_receives((Daemon_cmd_T*)&cmd,&error);
@@ -271,7 +266,7 @@ int Platform_ArduinoYun::platform_deinit(void)
 			}
 		}
 		manage_destoryList();
-		/*blocking and waitting for respond.*/
+	
 		
 	}
 	return error;
@@ -328,7 +323,7 @@ int Platform_ArduinoYun::platform_send(Daemon_cmd_T cmd,const char *data,const c
 	else
 		return res;
 }
-
+#if 0
 /**
 *Closes a process started by runAsynchronously().
 **/
@@ -379,3 +374,4 @@ Clears the Process buffer of any bytes. Waits for the transmission of outgoing d
 void Platform_ArduinoYun::flush(){
 	 return _p.flush();
 }
+#endif
