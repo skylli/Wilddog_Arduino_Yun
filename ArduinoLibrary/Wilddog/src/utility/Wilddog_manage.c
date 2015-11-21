@@ -222,8 +222,8 @@ int manage_handleReceive(const char *recv,unsigned long *p_index, int *p_error)
     *p_error = atoi(p_buf);
 
     /* get index*/
-    if  cmd != _CMD_INIT && 
-        cmd != _CMD_DESTORY )
+    if ( cmd != _CMD_INIT && 
+         cmd != _CMD_DESTORY )
         {
         
         len = strlen(recv)+1;
