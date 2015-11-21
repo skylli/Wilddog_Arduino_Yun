@@ -19,22 +19,25 @@
 ####第二步 安装
 	
 #####Ar9331
-1、通过ssh登录Ar93313，具体操作步骤请移步`https://www.arduino.cc/en/Guide/ArduinoYun`。
-2、点击`ArduinoYun_ar9331_Bin`，并传输到Ar9331里，推荐使用SecureCRT传输文件，如下：
+######1、通过ssh登录Ar93313，具体操作步骤请移步`https://www.arduino.cc/en/Guide/ArduinoYun`。
+######2、点击`ArduinoYun_ar9331_Bin`，并传输到Ar9331里，推荐使用SecureCRT传输文件，如下：
 	root@Arduino:~# rz	（选择ArduinoYun_ar9331_Bin）
 	root@Arduino:~# ls
 	ArduinoYun_ar9331_Bin.zip
 	root@Arduino:~# tar zxvf  ArduinoYun_ar9331_Bin.tar.gz
-3、把`ArduinoYun_ar9331_Bin`解压并添加系统`PATH`:
+######3、把`ArduinoYun_ar9331_Bin`解压并添加系统`PATH`:
 	root@Arduino:~# tar zxvf ArduinoYun_ar9331_Bin.tar.gz
 	root@Arduino:~# cd ArduinoYun_ar9331_Bin
-	root@Arduino:~/ArduinoYun_ar9331_Bin# pwd
-	root/ArduinoYun_ar9331_Bin
-	root@Arduino:~/ArduinoYun_ar9331_Bin# PATH=$PATH:/root/ArduinoYun_ar9331_Bin
-	root@Arduino:~/ArduinoYun_ar9331_Bin# echo $PATH
-	root/ArduinoYun_ar9331_Bin:/bin:/sbin:/usr/bin:/usr/sbin
+	root@Arduino:~/ArduinoYun_ar9331_Bin# ls
+	install.sh        uninstall.sh      wilddog_daemon    wilddog_transfer
+	root@Arduino:~/ArduinoYun_ar9331_Bin# sh install.sh
+	root@Arduino:~/ArduinoYun_ar9331_Bin# ls /user/bin/wilddog*
+	/usr/bin/wilddog_daemon    /usr/bin/wilddog_transfer  (有这两个文件代表安装成功)
+		
+######4、卸载`ArduinoYun_ar9331_Bin`:
+	root@Arduino:~/ArduinoYun_ar9331_Bin# sh uninstall.sh
 
 #####Arduino
-1、把`ArduinoLibrary` 放置到`C:\Program Files (x86)\Arduino\libraries`下.
-2、并更新库，依次点击`项目-->管理库`，IDE会自动更新库，并在选择框里输入`wilddog`，出现下图说明库安装成功.
-3、现在你可以到`C:\Program Files (x86)\Arduino\libraries\Wilddog\examples\ArduinoYun`下查看库的使用范例。
+######1、把`ArduinoLibrary` 放置到`C:\Program Files (x86)\Arduino\libraries`下.
+######2、并更新库，依次点击`项目-->管理库`，IDE会自动更新库，并在选择框里输入`wilddog`，出现下图说明库安装成功.
+######3、现在你可以到`C:\Program Files (x86)\Arduino\libraries\Wilddog\examples\ArduinoYun`下查看库的使用范例。

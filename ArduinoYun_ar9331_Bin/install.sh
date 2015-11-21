@@ -1,4 +1,3 @@
-#!/bin/sh
-chmod 777 wilddog_daemon wilddog_transfer
-cp wilddog_daemon /usr/bin/
-cp wilddog_transfer  /usr/bin/
+#!/bin/bash
+chmod 777 wilddog_*
+cp wilddog_daemon wilddog_transfer /usr/bin/
