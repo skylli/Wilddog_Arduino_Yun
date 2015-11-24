@@ -207,9 +207,9 @@ int sjson_fillSlash(const char *src,char *dst,int *dstLen)
 	char *p_src = src;
 	int i;
 	if(src == NULL || dst == NULL)
-		return ;
+		return 0;
 
-	for(i=0;p_src != NULL;p_src++)
+	for(i=0;*p_src != '\0';p_src++)
 	{
 		if(*p_src == '"'||  *p_src == '\\')
 		{
@@ -229,6 +229,26 @@ _FILLSLASH_END:
 	*dstLen = i;
 	return i;
 	
+}
+/* 
+*	count the number of sepecial character.
+*/
+int sjson_countSecialCharacter(const char *src)
+{
+	int cnt = 0,i;
+	char *p = src;
+
+    if(src == NULL)
+        return 0;
+    
+	for(;*p != '\0';p++)
+	{
+	
+		if(*p == '"'||  *p== '\\')
+			cnt++;
+	}
+
+	return cnt;
 }
 
 

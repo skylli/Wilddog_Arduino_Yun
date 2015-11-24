@@ -94,6 +94,97 @@ int manage_getSendPacket(char *dst,int *dstLen,Daemon_cmd_T cmd,unsigned long in
                         Wilddog_EventType_T event,const char *p_data,const char *p_host)
 {
     
+    memset(dst,0,*dstLen);
+    *dstLen = 0;
+
+    if( dst == 0 )
+        return -1;
+    
+	switch(cmd)
+    {
+    
+        case _CMD_INIT: 
+            //sprintf(dst,"%s  \"{\".cmd\\\":\"%d\\\"}\"",_BIN_PATH,cmd);
+            sprintf(dst,"%s ",_BIN_DAEMON);
+            break;
+            
+        case _CMD_INIT_WILDDOG:
+            if( p_data == 0)
+                return -1;
+            sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%s\"}\"",\
+                _BIN_PATH,_JSON_CMD_,cmd,_JSON_DATA_,p_data);           
+            break;
+            
+        case _CMD_GET:
+            sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%ld\"}\"",\
+                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
+            break;
+            
+        case _CMD_SET:
+            if( p_data == 0)
+                return -1;
+            sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%ld\""
+            ",\"%s\":%s}\"",_BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_DATA_,p_data);    
+            break;
+            
+        case _CMD_PUSH:
+            if(p_data == 0)
+                return -1;
+            sprintf(dst,"%s \"{\"%s\":\"%d\""
+                ",\"%s\":\"%ld\",\"%s\":%s}\"",\
+                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_DATA_,p_data);
+            
+            break;
+        case _CMD_REMOVE:
+             sprintf(dst,"%s \"{\"%s\":\"%d\",\
+                \"%s\":\"%ld\"}\"",_BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
+            break;
+       case _CMD_ON:
+            sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%ld\","
+                "\"%s\":\"%d\"}\"",
+                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_EVENTTYPE_,event);            
+            break;
+       case _CMD_OFF:
+            sprintf(dst,"%s \"{\"%s\":\"%d\","
+                "\"%s\":\"%ld\",\"%s\":\"%d\"}\"",
+                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_EVENTTYPE_,event);            
+            break;
+       case _CMD_AUTH:
+             if(p_host == 0 || p_data == 0)
+                return -1;
+             sprintf(dst,"%s \"{\"%s\":\"%d\","
+                "\"%s\":\"%ld\",\"%s\":\"%s\",\"%s\":\"%s\"}\"",\
+                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_HOST_,p_host,_JSON_DATA_,p_data);            
+            break;
+       case _CMD_DESTORY_WILDDOG:
+            sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%ld\"}\"",\
+                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
+            break;
+       case _CMD_DESTORY:
+            sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%ld\"}\"",\
+                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index);
+            break;
+
+       case _CMD_NOTIFY:
+                sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%ld\"}\"",
+                 _BIN_PATH,_JSON_CMD_,_CMD_NOTIFY,_JSON_INDEX_,index);
+                break;
+
+           default :
+
+                
+                return 0;
+    }   
+   *dstLen = strlen(dst);
+
+   return *dstLen;
+}
+
+#if 0
+int manage_getSendPacket(char *dst,int *dstLen,Daemon_cmd_T cmd,unsigned long index,
+                        Wilddog_EventType_T event,const char *p_data,const char *p_host)
+{
+    
     char *fillSlashBuffer = NULL;
     memset(dst,0,*dstLen);
     *dstLen = 0;
@@ -195,7 +286,7 @@ int manage_getSendPacket(char *dst,int *dstLen,Daemon_cmd_T cmd,unsigned long in
 
    return *dstLen;
 }
-
+#endif
 /* return cmd .*/
 int manage_handleReceive(const char *recv,unsigned long *p_index, int *p_error)
 {

@@ -8,8 +8,7 @@
 #define Wilddog__h
 
 #include "Arduino.h"
-#include "utility/Platform_ArduinoYun.h"
-#include <Process.h>
+#include "utility/Wilddog_conn.h"
 
 class Wilddog
 {
@@ -26,7 +25,7 @@ class Wilddog
         int auth(const char *p_token,const char *p_host,CallBackFunc f_callback,void *arg);
         
         void trysync();
-        Platform_ArduinoYun wd_platform;
+        Connect WD_Connect;
     
 	private:
        unsigned long wilddog_index;

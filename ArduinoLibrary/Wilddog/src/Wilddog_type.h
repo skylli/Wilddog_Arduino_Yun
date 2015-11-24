@@ -1,5 +1,5 @@
 /*
-  Wilddog_type.h - Library for flashing Platform_ArduinoYun code.
+  Wilddog_type.h - Library for flashing Connect code.
   Created by Sky.Li, October 27, 2015.
   Released into the public domain.
 */

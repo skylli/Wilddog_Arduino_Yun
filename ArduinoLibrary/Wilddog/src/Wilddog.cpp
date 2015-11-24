@@ -6,17 +6,17 @@
 
 #include "Wilddog.h"
 #include "wilddog_type.h"
-#include "utility/Platform_ArduinoYun.h"
+#include "utility/Wilddog_conn.h"
 
 
 void Wilddog::trysync()
 {
-	wd_platform.trysync();
+	WD_Connect.trysync();
 }
 
 Wilddog::Wilddog(const char *p_url)
 {
-	wilddog_index = wd_platform.platform_init(p_url);
+	wilddog_index = WD_Connect.Connect_init(p_url);
 	Serial.print(wilddog_index,DEC);
 }
 /**
@@ -24,7 +24,7 @@ Wilddog::Wilddog(const char *p_url)
 **/
 Wilddog::~Wilddog() 
 {
-	wd_platform.platform_deinit();
+	WD_Connect.Connect_deInit();
 	wilddog_index = 0;
 }
 /*
@@ -33,14 +33,14 @@ Wilddog::~Wilddog()
 
 boolean Wilddog::wilddogBusying() 
 { 
-	return wd_platform.platform_Busying();
+	return WD_Connect.platform_Busying();
 }
 
 
-int Wilddog::platform_init(const char *p_url)
+int Wilddog::Connect_init(const char *p_url)
 {
 	
-  return wd_platform.cmd_send(_CMD_INIT_WILDDOG,p_url); 
+  return WD_Connect.cmd_send(_CMD_INIT_WILDDOG,p_url); 
 }
 **/
 /*
@@ -49,7 +49,7 @@ int Wilddog::platform_init(const char *p_url)
 int Wilddog::getValue(CallBackFunc f_callback,void *arg)
 {
   if(wilddog_index)	
-  	return wd_platform.platform_send(_CMD_GET,f_callback,arg);  
+  	return WD_Connect.Connect_send(_CMD_GET,f_callback,arg);  
   else
   	return -1;
 }
@@ -59,7 +59,7 @@ int Wilddog::getValue(CallBackFunc f_callback,void *arg)
 int Wilddog::setValue(const char *p_data,CallBackFunc f_callback,void *arg)
 {
 	if(wilddog_index)
-		return wd_platform.platform_send(_CMD_SET,p_data,f_callback,arg);  
+		return WD_Connect.Connect_send(_CMD_SET,p_data,f_callback,arg);  
 	else
 		return -1;
 }
@@ -69,7 +69,7 @@ int Wilddog::setValue(const char *p_data,CallBackFunc f_callback,void *arg)
 int Wilddog::push(const char *p_data,CallBackFunc f_callback,void *arg)
 {
 	if(wilddog_index)
-  		return wd_platform.platform_send(_CMD_PUSH,p_data,f_callback,arg);  
+  		return WD_Connect.Connect_send(_CMD_PUSH,p_data,f_callback,arg);  
 	else
 		return 0;
 }
@@ -80,7 +80,7 @@ int Wilddog::removeValue(CallBackFunc f_callback,void *arg)
 {
 	
 	if(wilddog_index)
-  		return wd_platform.platform_send(_CMD_REMOVE,f_callback,arg); 
+  		return WD_Connect.Connect_send(_CMD_REMOVE,f_callback,arg); 
 	else 
 		return -1;
 }
@@ -90,7 +90,7 @@ int Wilddog::removeValue(CallBackFunc f_callback,void *arg)
 int Wilddog::addObserver(Wilddog_EventType_T event,CallBackFunc f_callback,void *arg)
 {
 	if(wilddog_index)
-  		return wd_platform.platform_send(_CMD_ON,event,f_callback,arg);  
+  		return WD_Connect.Connect_send(_CMD_ON,event,f_callback,arg);  
 	else
 		return -1;
 }
@@ -100,7 +100,7 @@ int Wilddog::addObserver(Wilddog_EventType_T event,CallBackFunc f_callback,void 
 int Wilddog::removeObserver(Wilddog_EventType_T event)
 {
 	if(wilddog_index)
-  		return wd_platform.platform_send(_CMD_OFF,event);  
+  		return WD_Connect.Connect_send(_CMD_OFF,event);  
 	else
 		return -1;
 }
@@ -110,7 +110,7 @@ int Wilddog::removeObserver(Wilddog_EventType_T event)
 int Wilddog::auth(const char *p_token,const char *p_host,CallBackFunc f_callback,void *arg)
 {
 	if(wilddog_index)
-  		return wd_platform.platform_send(_CMD_AUTH,p_token,p_host,f_callback,arg);  
+  		return WD_Connect.Connect_send(_CMD_AUTH,p_token,p_host,f_callback,arg);  
 	else
 		return -1;
 }

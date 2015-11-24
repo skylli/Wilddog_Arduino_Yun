@@ -13,6 +13,8 @@ extern "C" {
 #endif
 extern int sjson_get_value(const char *input, const char *name,
                         char *output, int *maxlen);  
+extern int sjson_countSecialCharacter(const char *src);
+extern int sjson_fillSlash(const char *src,char *dst,int *dstLen);
 
 #ifdef __cplusplus
 	}
