@@ -45,14 +45,18 @@
 
 我们利用`SSH`登录`ArduinoYun`需要获取`ArduinoYun`的`IP`，你可以直接登录路由获取，也可以用`Arduino 1.6.6`或者以上版本的`IDE`获取`ArduinoYun`的`IP`。`ArduinoYun`保持上电，打开`Arduino IDE`，选择`工具-->端口`如下图：
 
+![](https://raw.githubusercontent.com/skylli/Wilddog_Arduino_Yun/master/Doc/getIP.png )
 	
 #####3、SSH登录ArduinoYun
 
 `SecureCRT`自带文件传输工具，这里以`SecureCRT`为例。打开`SecureCRT`，选择`file-->Quick Connect`，在`Hostname`框中输入`ArduinoYun`的`IP`，`name`输入`root`，如下图：
 
+![](https://raw.githubusercontent.com/skylli/Wilddog_Arduino_Yun/master/Doc/SecureCrt_ssh_config.png )
+
 
 点击确定后弹出下图，输入密码登录`arduino`（默认），进入一下界面说明`SSH`登录成功。
 
+![](https://raw.githubusercontent.com/skylli/Wilddog_Arduino_Yun/master/Doc/SecureCrt_ssh_ok.png )
 
 ######4、安装`ArduinoYun_ar9331_Bin`
 	
