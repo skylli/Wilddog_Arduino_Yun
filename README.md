@@ -54,7 +54,7 @@
 ![](https://raw.githubusercontent.com/skylli/Wilddog_Arduino_Yun/master/Doc/SecureCrt_ssh_config.png )
 
 
-点击确定后弹出下图，输入密码登录`arduino`（默认），进入一下界面说明`SSH`登录成功。
+点击`Connect`后弹出下图，输入密码登录`arduino`（默认），进入以下界面说明`SSH`登录成功。
 
 ![](https://raw.githubusercontent.com/skylli/Wilddog_Arduino_Yun/master/Doc/SecureCrt_ssh_ok.png )
 
@@ -80,9 +80,9 @@
 
 ######6、安装`ArduinoLibrary`库
 
-	1、把`ArduinoLibrary` 放置到`C:\Program Files (x86)\Arduino\libraries`下.
-	2、并更新库，依次点击`项目-->管理库`，IDE会自动更新库，并在选择框里输入`wilddog`，出现下图说明库安装成功.
+	1、把`ArduinoLibrary` 放置到`C:\Program Files (x86)\Arduino\libraries`路径下.
+	2、更新库，打开Arduino IDE，点击`项目-->管理库`，IDE会自动更新库，并在选择框里输入`wilddog`，出现下图说明库安装成功.
 
 ![](https://raw.githubusercontent.com/skylli/Wilddog_Arduino_Yun/master/Doc/arduino_ide_updata.png )
 
-	3、现在你可以到`C:\Program Files (x86)\Arduino\libraries\Wilddog\examples\ArduinoYun`下查看库的使用范例。
+	3、我们在`C:\Program Files (x86)\Arduino\libraries\Wilddog\examples\ArduinoYun`下提供了丰富的范例供用户学习和测试。
