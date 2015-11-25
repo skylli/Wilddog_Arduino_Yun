@@ -43,7 +43,7 @@
 	
 #####2、获取ArduinoYun的IP
 
-我们利用`SSH`登录`ArduinoYun`需要获取`ArduinoYun`的`IP`，你可以直接登录路由获取，也可以用`Arduino 1.6.6`或者以上版本的`IDE`获取`ArduinoYun`的`IP`。`ArduinoYun`保持上电，打开`Arduino IDE`，选择`工具-->端口`如下图：
+利用`SSH`登录`ArduinoYun`需要获取`ArduinoYun`的`IP`，可以直接登录路由获取，也可以用`Arduino 1.6.6`或者以上版本的`IDE`获取`ArduinoYun`的`IP`。`ArduinoYun`保持上电，打开`Arduino IDE`，选择`工具-->端口`如下图：
 
 ![](https://raw.githubusercontent.com/skylli/Wilddog_Arduino_Yun/master/Doc/getIP.png )
 	
@@ -82,4 +82,7 @@
 
 	1、把`ArduinoLibrary` 放置到`C:\Program Files (x86)\Arduino\libraries`下.
 	2、并更新库，依次点击`项目-->管理库`，IDE会自动更新库，并在选择框里输入`wilddog`，出现下图说明库安装成功.
+
+![](https://raw.githubusercontent.com/skylli/Wilddog_Arduino_Yun/master/Doc/arduino_ide_updata.png )
+
 	3、现在你可以到`C:\Program Files (x86)\Arduino\libraries\Wilddog\examples\ArduinoYun`下查看库的使用范例。
