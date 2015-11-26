@@ -18,7 +18,7 @@ typedef enum DAEMON_CMD{
     _CMD_ON,
     _CMD_OFF,//
     _CMD_AUTH,
-	
+    
     _CMD_DESTORY_WILDDOG,//
     _CMD_INIT,//
     _CMD_DESTORY,//

@@ -167,7 +167,7 @@ void Connect::_connect_getRespond(unsigned long wd_index)
 	_connect_send(_CMD_NOTIFY,(Wilddog_EventType_T)0,wd_index,NULL,NULL);
 }
 
-void Connect::trysync()
+void Connect::trySync()
 {
 
 

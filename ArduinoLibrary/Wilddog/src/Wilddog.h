@@ -12,11 +12,11 @@
 
 class Wilddog
 {
-	public:
-		Wilddog(const char *p_url);
-		~Wilddog();
+    public:
+        Wilddog(const char *p_url);
+        ~Wilddog();
 
-    	int getValue(CallBackFunc f_callback,void *arg);
+        int getValue(CallBackFunc f_callback,void *arg);
         int setValue(const char *p_data,CallBackFunc f_callback,void *arg);
         int push(const char *p_data,CallBackFunc f_callback,void *arg);
         int removeValue(CallBackFunc f_callback,void *arg);
@@ -24,12 +24,14 @@ class Wilddog
         int removeObserver(Wilddog_EventType_T event);
         int auth(const char *p_token,const char *p_host,CallBackFunc f_callback,void *arg);
         
-        void trysync();
-        Connect wd_connect;
+        void trySync();
+
     
-	private:
+    private:
+        
+       Connect _wd_connect;
        unsigned long wilddog_index;
-		
+        
 };
 
 

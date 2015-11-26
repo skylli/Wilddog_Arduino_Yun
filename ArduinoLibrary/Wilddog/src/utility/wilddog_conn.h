@@ -47,7 +47,7 @@ class Connect
     int connect_send(Daemon_cmd_T cmd,const char *data,CallBackFunc f_callback,void *arg);
     int connect_send(Daemon_cmd_T cmd,const char *data,const char *p_host,CallBackFunc f_callback,void *arg);
 
-    void trysync();
+    void trySync();
   
 	
   private:
