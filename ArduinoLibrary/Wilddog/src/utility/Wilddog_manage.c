@@ -365,7 +365,7 @@ int manage_handleReceive(const char *recv,unsigned long *p_index, int *p_error)
            res = sjson_get_value(recv,_JSON_DATA_,p_buf,&len);
            
            if(respond_node->f_callback)
-              respond_node->f_callback(recv,*p_error,respond_node->arg);
+              respond_node->f_callback(p_buf,*p_error,respond_node->arg);
     
             /* change to notify */
             if(respond_node->cmd == _CMD_ON)

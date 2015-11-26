@@ -38,14 +38,14 @@ class Connect
     
     Connect();
 	~Connect();
-    unsigned long Connect_init(const char *url);
-    int Connect_deInit(void);
+    unsigned long connect_init(const char *url);
+    int connect_deInit(void);
     
-    int Connect_send(Daemon_cmd_T cmd,CallBackFunc f_callback,void *arg);
-    int Connect_send(Daemon_cmd_T cmd,Wilddog_EventType_T event);
-    int Connect_send(Daemon_cmd_T cmd,Wilddog_EventType_T event,CallBackFunc f_callback,void *arg);
-    int Connect_send(Daemon_cmd_T cmd,const char *data,CallBackFunc f_callback,void *arg);
-    int Connect_send(Daemon_cmd_T cmd,const char *data,const char *p_host,CallBackFunc f_callback,void *arg);
+    int connect_send(Daemon_cmd_T cmd,CallBackFunc f_callback,void *arg);
+    int connect_send(Daemon_cmd_T cmd,Wilddog_EventType_T event);
+    int connect_send(Daemon_cmd_T cmd,Wilddog_EventType_T event,CallBackFunc f_callback,void *arg);
+    int connect_send(Daemon_cmd_T cmd,const char *data,CallBackFunc f_callback,void *arg);
+    int connect_send(Daemon_cmd_T cmd,const char *data,const char *p_host,CallBackFunc f_callback,void *arg);
 
     void trysync();
   

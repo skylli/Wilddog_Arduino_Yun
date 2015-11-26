@@ -25,7 +25,7 @@ class Wilddog
         int auth(const char *p_token,const char *p_host,CallBackFunc f_callback,void *arg);
         
         void trysync();
-        Connect WD_Connect;
+        Connect wd_connect;
     
 	private:
        unsigned long wilddog_index;

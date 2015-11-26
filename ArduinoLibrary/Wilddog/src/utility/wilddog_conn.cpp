@@ -177,7 +177,7 @@ void Connect::trysync()
 }
 
 /* return index.*/
-unsigned long Connect::Connect_init(const char *url)
+unsigned long Connect::connect_init(const char *url)
 {
 	int cmd = -1, error = 0;
 	long int res = 0;
@@ -220,7 +220,7 @@ unsigned long Connect::Connect_init(const char *url)
 	delay(5500);
 	return index;
 }
-int Connect::Connect_deInit(void)
+int Connect::connect_deInit(void)
 {
 	int cmd = -1, error = 0;
 	long int  res = 0;
@@ -264,7 +264,7 @@ int Connect::Connect_deInit(void)
 	return error;
 }
 /* only off.*/
-int Connect::Connect_send(Daemon_cmd_T cmd,Wilddog_EventType_T event)
+int Connect::connect_send(Daemon_cmd_T cmd,Wilddog_EventType_T event)
 {
 	long int res = 0;
 
@@ -272,7 +272,7 @@ int Connect::Connect_send(Daemon_cmd_T cmd,Wilddog_EventType_T event)
 	
 	return res;
 }
-int Connect::Connect_send(Daemon_cmd_T cmd,CallBackFunc f_callback,void *arg)
+int Connect::connect_send(Daemon_cmd_T cmd,CallBackFunc f_callback,void *arg)
 {
 	long int res = 0;
 	res = _connect_send(cmd,(Wilddog_EventType_T)0,index,NULL,NULL);
@@ -281,7 +281,7 @@ int Connect::Connect_send(Daemon_cmd_T cmd,CallBackFunc f_callback,void *arg)
 	else
 		return res;
 }
-int Connect::Connect_send(Daemon_cmd_T cmd,Wilddog_EventType_T event,CallBackFunc f_callback,void *arg)
+int Connect::connect_send(Daemon_cmd_T cmd,Wilddog_EventType_T event,CallBackFunc f_callback,void *arg)
 {
 	long int res = 0;
 	res = _connect_send(cmd,event,index,NULL,NULL);
@@ -295,7 +295,7 @@ int Connect::Connect_send(Daemon_cmd_T cmd,Wilddog_EventType_T event,CallBackFun
 	else
 		return res;
 }
-int Connect::Connect_send(Daemon_cmd_T cmd,const char *data,CallBackFunc f_callback,void *arg)
+int Connect::connect_send(Daemon_cmd_T cmd,const char *data,CallBackFunc f_callback,void *arg)
 {
 	long int res = 0;
 	res = _connect_send(cmd,(Wilddog_EventType_T)0,index,data,NULL);
@@ -305,7 +305,7 @@ int Connect::Connect_send(Daemon_cmd_T cmd,const char *data,CallBackFunc f_callb
 	else
 		return res;
 }
-int Connect::Connect_send(Daemon_cmd_T cmd,const char *data,const char *p_host,CallBackFunc f_callback,void *arg)
+int Connect::connect_send(Daemon_cmd_T cmd,const char *data,const char *p_host,CallBackFunc f_callback,void *arg)
 {
 	long int res = 0;
 	res = _connect_send(cmd,(Wilddog_EventType_T)0,index,data,p_host);
