@@ -12,7 +12,7 @@
 #include "wilddog.h"
 #include "utlist.h"
 
-#include "wilddog_daemon.h"
+#include "wilddog_D.h"
 #define _DAEMON_SERVER_PORT (9527)
 #define _DAEMON_CLIENT_IP 	"127.0.0.1"
 #define _DAEMON_NODE_LEN    (127)
@@ -70,7 +70,7 @@ char* strstr(const char *s1,const char *s2)
 		if(strncmp(p,s2,len)==0)
 		return	(char*)p;
 	}
-return(NULL);
+    return(NULL);
 }
 
 static const char *skip_space(const char *str)
@@ -187,7 +187,14 @@ err1:
 int Daemon_server_creat(void)
 {
     struct sockaddr_in si_me;
+    int serverPort = 0,res = 0,len =0;
+    char fileName[256];
+    char responBuff[256];
+    FILE  *fp = NULL;
 
+    memset(responBuff,0,sizeof(responBuff));
+    memset( fileName,0,sizeof(fileName));
+    
     if ((l_fd=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1)
     {
         //wilddog_debug_level(WD_DEBUG_ERROR,"creat udp server falt");
@@ -196,13 +203,60 @@ int Daemon_server_creat(void)
 
     memset((char *) &si_me, 0, sizeof(si_me));
     si_me.sin_family = AF_INET;
-    si_me.sin_port = htons(_DAEMON_SERVER_PORT);
+   // si_me.sin_port = htons(_DAEMON_SERVER_PORT);
     si_me.sin_addr.s_addr = htonl(INADDR_ANY);
-    if (bind(l_fd, &si_me, sizeof(si_me))==-1)
-        return -1;
+    if ( (res = bind(l_fd, &si_me, sizeof(si_me)))==-1)
+    {
+        sprintf(responBuff,"{\"%s\":\"%d\",\"%s\":\"%d\",\"%s\":\"%d\"}",\
+            _JSON_CMD_,_CMD_INIT,_JSON_SERVERPORT_,0,_JSON_ERRORCODE_,-1);    
+    }
+    else
+    {
+        len = sizeof(struct sockaddr_in);
+        memset(&si_me,0,len);
+        getsockname(l_fd,&si_me,&len);
+        serverPort = ntohs(si_me.sin_port);
+        sprintf(responBuff,"{\"%s\":\"%d\",\"%s\":\"%d\",\"%s\":\"%d\"}",\
+            _JSON_CMD_,_CMD_INIT,_JSON_SERVERPORT_,serverPort,_JSON_ERRORCODE_,0);
+    }
 
-    wilddog_debug_level(WD_DEBUG_LOG,"open soket %d",l_fd);
-    return l_fd;  
+    wilddog_debug("get server port : %d",serverPort);
+    /* creat file to save port number.*/
+    sprintf(fileName,"%s",_FILE_PATH);
+    /* */
+    if( access(fileName,R_OK) == -1)
+    {
+        umask(0);
+        if( mkdir(fileName,0777) == -1)
+            return -1;
+    }
+
+    
+    memset( fileName,0,sizeof(fileName));
+    sprintf(fileName,"%s%s",_FILE_PATH,_FILE_DAEMON_NAME_);
+	fp = fopen(fileName, "w");
+	if( fp == NULL)
+		return -1;
+    
+    while( flock(fileno(fp), LOCK_EX) != 0 )
+	{
+		sleep(1);
+		//printf("write wdd file was locked ...\n");
+	}
+
+    
+	fputs(responBuff,fp);
+    fputs(" \n",fp);
+	fflush(fp);
+	//printf("write wdd locking file \n");
+	flock(fileno(fp), LOCK_UN);
+	//printf("write wdd wiret done \n");
+
+	if(fp)
+		fclose(fp);
+	
+    wilddog_debug_level( WD_DEBUG_LOG,"open soket %d",l_fd);
+    return res;  
 }
 
 void Daemon_server_close()
@@ -956,6 +1010,7 @@ static int Daemon_handleReceive(_Daemon_Node_T *p_new,const char *buf)
         Daemon_node_destory(&p_new);
         return -1;
     }
+
     cmd =  atoi(&cmd);
 
     /* node must be exit in link list.*/
@@ -1029,12 +1084,7 @@ static int Daemon_handleReceive(_Daemon_Node_T *p_new,const char *buf)
 int Daemon_init(void)
 {
     
-    l_fd = Daemon_server_creat();
-
-    if(l_fd == 0)
-        return -1;
-
-    return 0;
+    return Daemon_server_creat();
 }
 
 void Daemon_deInit(void)
@@ -1071,12 +1121,12 @@ int main_thread(void)
     if(Daemon_init()== -1)
     {
         
-        printf( "{\".cmd\":\"9\",\".error\":\"-1\",\".index\":\"0\"}\n" );
+        //printf( "{\".cmd\":\"9\",\".error\":\"-1\",\".index\":\"0\"}\n" );
         fflush(stdout);
         return -1;
         
     }
-    printf( "{\".cmd\":\"9\",\".error\":\"0\",\".index\":\"0\"}\n" );
+    //printf( "{\".cmd\":\"9\",\".error\":\"0\",\".index\":\"0\"}\n" );
     fflush(stdout);
   // printf("{\".cmd\":\"%d\",\".error\":\"%d\",\".index\":\"%d\"}",0,res,0); 
     while(1)
@@ -1151,8 +1201,7 @@ int main(int argc, char** argv)
 {
 
 	pid_t pid;
-    /* */
-	pid = fork();
+    pid = fork();
 	switch(pid)
 	{
 	    /* */
@@ -1160,10 +1209,10 @@ int main(int argc, char** argv)
             main_thread();
             break;
 		case -1:
-		printf( "{\".cmd\":\"9\",\".error\":\"-1\",\".index\":\"0\"}\n" );
-		exit(-1);
+    		//printf( "{\".cmd\":\"9\",\".error\":\"-1\",\".index\":\"0\"}\n" );
+    		exit(-1);
 		default:
-		exit(0);
+		    exit(0);
 	}
 	return 0;
 }

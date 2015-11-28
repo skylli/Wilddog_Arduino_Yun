@@ -10,8 +10,16 @@
 #define _JSON_ERRORCODE_    ".error"
 #define _JSON_EVENTTYPE_    ".eventType"
 #define _JSON_HOST_         ".host"
+
 #define _FILE_NAME_         ".wd_"
-#define	_FILE_PATH			"/tmp/"
+#define _FILE_DAEMON_NAME_    ".wd_D"
+#define _JSON_SERVERPORT_         ".port"
+
+#define	_FILE_PATH			"/tmp/wilddog/"
+
+#define _BIN_DAEMON "wilddog_D"
+#define _BIN_WATCH	"wilddog_watch"
+
 
 #define	_ERROR_INPUT_FAULT_		" illegality input"
 #define	_ERROR_INPUT_CMD_FAULT_		"input witchout cmd "

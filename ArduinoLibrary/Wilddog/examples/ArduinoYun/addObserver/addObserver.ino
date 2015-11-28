@@ -120,5 +120,5 @@ void loop()
 {
   Serial.print("trysyncing ...\n");   
   if(p_wd)
-    p_wd->trysync(); 
+    p_wd->trySync(); 
 }

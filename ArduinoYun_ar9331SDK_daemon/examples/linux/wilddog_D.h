@@ -1,8 +1,8 @@
 /*
 *
 */
-#ifndef _DAEMON_H_
-#define _DAEMON_H_
+#ifndef _WILDDOG_D_H_
+#define _WILDDOG_D_H_
 
 #define _JSON_CMD_          ".cmd"
 #define _JSON_INDEX_        ".index"
@@ -10,9 +10,13 @@
 #define _JSON_ERRORCODE_    ".error"
 #define _JSON_EVENTTYPE_    ".eventType"
 #define _JSON_HOST_         ".host"
-#define	_FILE_PATH			"/tmp/"
+#define _JSON_SERVERPORT_    ".port"
+
+#define	_FILE_PATH			"/tmp/wilddog/"
 
 #define _FILE_NAME_         ".wd_"
+#define _FILE_DAEMON_NAME_    ".wd_D"
+
 
 #define	_ERROR_INPUT_FAULT_		" illegality input"
 #define	_ERROR_INPUT_CMD_FAULT_		"input witchout cmd "
@@ -37,4 +41,4 @@ typedef enum DAEMON_CMD{
     
 }Daemon_cmd_T;
 
-#endif /* _TEST_H_ */
+#endif /* _WILDDOG_D_H_ */

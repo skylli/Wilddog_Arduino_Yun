@@ -67,7 +67,8 @@ class Connect
 					const char *src,const char *p_host);
     
     unsigned long index;
-	static int initUrl_num;
+	static int _l_initUrl_num;
+    static unsigned long _l_port;
 };
 
 #endif

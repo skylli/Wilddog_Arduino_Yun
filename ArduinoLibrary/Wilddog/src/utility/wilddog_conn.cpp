@@ -8,7 +8,8 @@
 #include "../Wilddog_config.h"
 
 						
-int Connect::initUrl_num = 0;
+int Connect::_l_initUrl_num = 0;
+unsigned long Connect::_l_port = 0;
 
 void Connect::_print(const char *src)
 {
@@ -49,13 +50,13 @@ long int Connect::_connect_send(Daemon_cmd_T cmd,Wilddog_EventType_T event,unsig
 
 	memset(p_buf,0,len);
 	/* get send packet*/
-	res = manage_getSendPacket(p_buf,&len,cmd,index,event,src,p_host);	
+	res = manage_getSendPacket(p_buf,&len,cmd,index,event,src,p_host,_l_port);	
 
 	/** sending out.*/
 	if( res > 0 && strlen(p_buf) > 0 )
 	{
 		_p.asyncSend(p_buf);	
-#if 0	
+#if 1	
 		if(cmd != _CMD_NOTIFY)
 		{
 			/* DEBUGing....*/
@@ -104,7 +105,7 @@ int Connect::_connect_asyncReceive(Daemon_cmd_T *p_cmd,int *p_error)
 
 	if( (receiveLen = _p.available()) > 0)
 	{
-		//_print(" receive data: \n");
+		_print(" receive data: \n");
 		receiveLen +=128;
 		buffer = (char*)malloc(receiveLen);
 		if(buffer == NULL)
@@ -116,14 +117,14 @@ int Connect::_connect_asyncReceive(Daemon_cmd_T *p_cmd,int *p_error)
 		
 			if(len  < receiveLen)
 			{
-				//char c;
+				char c;
 				buffer[len]=_p.read();
-				//c = buffer[len];
-				//Serial.print(c);
+				c = buffer[len];
+				Serial.print(c);
 			}
 		}
 		
-		*p_cmd = (Daemon_cmd_T)manage_handleReceive(buffer,&index,p_error);
+		*p_cmd = (Daemon_cmd_T)manage_handleReceive(buffer,&index,p_error,&_l_port);
 #if 0		
 		_print("\n receive buf : \n");
 		_printArray(buffer,strlen(buffer));
@@ -182,7 +183,7 @@ unsigned long Connect::connect_init(const char *url)
 	int cmd = -1, error = 0;
 	long int res = 0;
 #if 1	
-	if(initUrl_num == 0)
+	if(_l_initUrl_num == 0)
 	{
 		res = _connect_send(_CMD_INIT,(Wilddog_EventType_T)0,0,NULL,NULL);
 		if(res == -1)
@@ -200,7 +201,7 @@ unsigned long Connect::connect_init(const char *url)
 		}
 	}
 #endif	
-	initUrl_num++;
+	_l_initUrl_num++;
 
 	res = _connect_send(_CMD_INIT_WILDDOG,(Wilddog_EventType_T)0,0,url,NULL);
 	if(res == -1)
@@ -239,8 +240,8 @@ int Connect::connect_deInit(void)
 			break;
 		}
 	}
-	initUrl_num--;
-	if(initUrl_num == 0)
+	_l_initUrl_num--;
+	if(_l_initUrl_num == 0)
 	{
 		
 		res = _connect_send(_CMD_DESTORY,(Wilddog_EventType_T)0,index,NULL,NULL);

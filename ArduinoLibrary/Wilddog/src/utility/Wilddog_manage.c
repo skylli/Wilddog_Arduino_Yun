@@ -10,12 +10,15 @@
 #include "Wilddog_manage.h"
 #include "utlist.h"
 
-#define _BIN_PATH	"wilddog_transfer"
+#define _BIN_WATCH	"wilddog_watch"
 
-#define _BIN_DAEMON "wilddog_daemon"
+#define _BIN_DAEMON "wilddog_D"
+
 
 #define _JSON_CMD_          ".cmd"
 #define _JSON_INDEX_        ".index"
+#define _JSON_PORT_         ".port"
+
 #define _JSON_DATA_         ".data"
 #define _JSON_ERRORCODE_    ".error"
 #define _JSON_EVENTTYPE_    ".eventType"
@@ -90,8 +93,10 @@ Transfer_Node_T *manage_searchNode(Daemon_cmd_T cmd,unsigned long index)
     return find;
 }
 /* return packet len .*/
-int manage_getSendPacket(char *dst,int *dstLen,Daemon_cmd_T cmd,unsigned long index,
-                        Wilddog_EventType_T event,const char *p_data,const char *p_host)
+int manage_getSendPacket
+    (   char *dst,int *dstLen,Daemon_cmd_T cmd,unsigned long index,
+        Wilddog_EventType_T event,const char *p_data,const char *p_host,
+        unsigned long port)
 {
     
     memset(dst,0,*dstLen);
@@ -104,70 +109,75 @@ int manage_getSendPacket(char *dst,int *dstLen,Daemon_cmd_T cmd,unsigned long in
     {
     
         case _CMD_INIT: 
-            //sprintf(dst,"%s  \"{\".cmd\\\":\"%d\\\"}\"",_BIN_PATH,cmd);
-            sprintf(dst,"%s ",_BIN_DAEMON);
+            sprintf(dst,"%s  \"{\"%s\":\"%d\"}\"",_BIN_WATCH,_JSON_CMD_,cmd);
             break;
             
         case _CMD_INIT_WILDDOG:
             if( p_data == 0)
                 return -1;
-            sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%s\"}\"",\
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_DATA_,p_data);           
+            sprintf(dst,"%s \"{\"%s\":\"%ld\",\"%s\":\"%d\",\"%s\":\"%s\"}\"",\
+                _BIN_WATCH,_JSON_PORT_,port,_JSON_CMD_,cmd,_JSON_DATA_,p_data);           
             break;
             
         case _CMD_GET:
-            sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%ld\"}\"",\
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
+            sprintf(dst,"%s \"{\"%s\":\"%ld\",\"%s\":\"%d\",\"%s\":\"%ld\"}\"",\
+                _BIN_WATCH,_JSON_PORT_,port,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
             break;
             
         case _CMD_SET:
             if( p_data == 0)
                 return -1;
-            sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%ld\""
-            ",\"%s\":%s}\"",_BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_DATA_,p_data);    
+            sprintf(dst,"%s \"{\"%s\":\"%ld\",\"%s\":\"%d\",\"%s\":\"%ld\","
+            "\"%s\":%s}\"",_BIN_WATCH,_JSON_PORT_,port,_JSON_CMD_,cmd,_JSON_INDEX_,\
+            index,_JSON_DATA_,p_data);    
             break;
             
         case _CMD_PUSH:
             if(p_data == 0)
                 return -1;
-            sprintf(dst,"%s \"{\"%s\":\"%d\""
-                ",\"%s\":\"%ld\",\"%s\":%s}\"",\
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_DATA_,p_data);
+            sprintf(dst,"%s \"{\"%s\":\"%ld\",\"%s\":\"%d\","
+                "\"%s\":\"%ld\",\"%s\":%s}\"",\
+                _BIN_WATCH,_JSON_PORT_,port,_JSON_CMD_,cmd,_JSON_INDEX_,index,\
+                _JSON_DATA_,p_data);
             
             break;
         case _CMD_REMOVE:
-             sprintf(dst,"%s \"{\"%s\":\"%d\",\
-                \"%s\":\"%ld\"}\"",_BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
+             sprintf(dst,"%s \"{\"%s\":\"%ld\",\"%s\":\"%d\",\
+                \"%s\":\"%ld\"}\"",_BIN_WATCH,_JSON_PORT_,port,_JSON_CMD_,cmd,\
+                _JSON_INDEX_,index);            
             break;
        case _CMD_ON:
-            sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%ld\","
+            sprintf(dst,"%s \"{\"%s\":\"%ld\",\"%s\":\"%d\",\"%s\":\"%ld\","
                 "\"%s\":\"%d\"}\"",
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_EVENTTYPE_,event);            
+                _BIN_WATCH,_JSON_PORT_,port,_JSON_CMD_,cmd,_JSON_INDEX_,index,\
+                _JSON_EVENTTYPE_,event);            
             break;
        case _CMD_OFF:
-            sprintf(dst,"%s \"{\"%s\":\"%d\","
+            sprintf(dst,"%s \"{\"%s\":\"%ld\",\"%s\":\"%d\","
                 "\"%s\":\"%ld\",\"%s\":\"%d\"}\"",
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_EVENTTYPE_,event);            
+                _BIN_WATCH,_JSON_PORT_,port,_JSON_CMD_,cmd,_JSON_INDEX_,index,\
+                _JSON_EVENTTYPE_,event);            
             break;
        case _CMD_AUTH:
              if(p_host == 0 || p_data == 0)
                 return -1;
-             sprintf(dst,"%s \"{\"%s\":\"%d\","
+             sprintf(dst,"%s \"{\"%s\":\"%ld\",\"%s\":\"%d\","
                 "\"%s\":\"%ld\",\"%s\":\"%s\",\"%s\":\"%s\"}\"",\
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_HOST_,p_host,_JSON_DATA_,p_data);            
+                _BIN_WATCH,_JSON_PORT_,port,_JSON_CMD_,cmd,_JSON_INDEX_,index,\
+                _JSON_HOST_,p_host,_JSON_DATA_,p_data);            
             break;
        case _CMD_DESTORY_WILDDOG:
-            sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%ld\"}\"",\
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
+            sprintf(dst,"%s \"{\"%s\":\"%ld\",\"%s\":\"%d\",\"%s\":\"%ld\"}\"",\
+                _BIN_WATCH,_JSON_PORT_,port,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
             break;
        case _CMD_DESTORY:
-            sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%ld\"}\"",\
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index);
+            sprintf(dst,"%s \"{\"%s\":\"%ld\",\"%s\":\"%d\",\"%s\":\"%ld\"}\"",\
+                _BIN_WATCH,_JSON_PORT_,port,_JSON_CMD_,cmd,_JSON_INDEX_,index);
             break;
 
        case _CMD_NOTIFY:
-                sprintf(dst,"%s \"{\"%s\":\"%d\",\"%s\":\"%ld\"}\"",
-                 _BIN_PATH,_JSON_CMD_,_CMD_NOTIFY,_JSON_INDEX_,index);
+                sprintf(dst,"%s \"{\"%s\":\"%ld\",\"%s\":\"%d\",\"%s\":\"%ld\"}\"",\
+                 _BIN_WATCH,_JSON_PORT_,port,_JSON_CMD_,_CMD_NOTIFY,_JSON_INDEX_,index);
                 break;
 
            default :
@@ -206,7 +216,7 @@ int manage_getSendPacket(char *dst,int *dstLen,Daemon_cmd_T cmd,unsigned long in
     {
     
         case _CMD_INIT: 
-            //sprintf(dst,"%s  \"{\\\".cmd\\\":\\\"%d\\\"}\"",_BIN_PATH,cmd);
+            //sprintf(dst,"%s  \"{\\\".cmd\\\":\\\"%d\\\"}\"",_BIN_WATCH,cmd);
             sprintf(dst,"%s ",_BIN_DAEMON);
             break;
             
@@ -214,19 +224,19 @@ int manage_getSendPacket(char *dst,int *dstLen,Daemon_cmd_T cmd,unsigned long in
             if( fillSlashBuffer == 0)
                 return -1;
             sprintf(dst,"%s \"{\\\"%s\\\":\\\"%d\\\",\\\"%s\\\":\\\"%s\\\"}\"",\
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_DATA_,fillSlashBuffer);           
+                _BIN_WATCH,_JSON_CMD_,cmd,_JSON_DATA_,fillSlashBuffer);           
             break;
             
         case _CMD_GET:
             sprintf(dst,"%s \"{\\\"%s\\\":\\\"%d\",\\\"%s\":\\\"%ld\\\"}\"",\
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
+                _BIN_WATCH,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
             break;
             
         case _CMD_SET:
             if( fillSlashBuffer == 0)
                 return -1;
             sprintf(dst,"%s \"{\\\"%s\\\":\\\"%d\\\",\\\"%s\\\":\\\"%ld\\\""
-            ",\\\"%s\\\":%s}\"",_BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_DATA_,fillSlashBuffer);    
+            ",\\\"%s\\\":%s}\"",_BIN_WATCH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_DATA_,fillSlashBuffer);    
             break;
             
         case _CMD_PUSH:
@@ -234,42 +244,42 @@ int manage_getSendPacket(char *dst,int *dstLen,Daemon_cmd_T cmd,unsigned long in
                 return -1;
             sprintf(dst,"%s \"{\\\"%s\\\":\\\"%d\\\""
                 ",\\\"%s\\\":\\\"%ld\\\",\\\"%s\\\":%s}\"",\
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_DATA_,fillSlashBuffer);
+                _BIN_WATCH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_DATA_,fillSlashBuffer);
             
             break;
         case _CMD_REMOVE:
              sprintf(dst,"%s \"{\\\"%s\\\":\\\"%d\\\",\
-                \\\"%s\\\":\\\"%ld\\\"}\"",_BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
+                \\\"%s\\\":\\\"%ld\\\"}\"",_BIN_WATCH,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
             break;
        case _CMD_ON:
             sprintf(dst,"%s \"{\\\"%s\\\":\\\"%d\\\",\\\"%s\\\":\\\"%ld\\\","
                 "\\\"%s\\\":\\\"%d\\\"}\"",
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_EVENTTYPE_,event);            
+                _BIN_WATCH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_EVENTTYPE_,event);            
             break;
        case _CMD_OFF:
             sprintf(dst,"%s \"{\\\"%s\\\":\\\"%d\\\","
                 "\\\"%s\\\":\\\"%ld\\\",\\\"%s\\\":\\\"%d\\\"}\"",
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_EVENTTYPE_,event);            
+                _BIN_WATCH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_EVENTTYPE_,event);            
             break;
        case _CMD_AUTH:
              if(p_host == 0 || fillSlashBuffer == 0)
                 return -1;
              sprintf(dst,"%s \"{\\\"%s\\\":\\\"%d\\\","
                 "\\\"%s\\\":\\\"%ld\\\",\\\"%s\\\":\\\"%s\\\",\\\"%s\\\":\\\"%s\\\"}\"",\
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_HOST_,p_host,_JSON_DATA_,fillSlashBuffer);            
+                _BIN_WATCH,_JSON_CMD_,cmd,_JSON_INDEX_,index,_JSON_HOST_,p_host,_JSON_DATA_,fillSlashBuffer);            
             break;
        case _CMD_DESTORY_WILDDOG:
             sprintf(dst,"%s \"{\\\"%s\\\":\\\"%d\\\",\\\"%s\\\":\\\"%ld\\\"}\"",\
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
+                _BIN_WATCH,_JSON_CMD_,cmd,_JSON_INDEX_,index);            
             break;
        case _CMD_DESTORY:
             sprintf(dst,"%s \"{\\\"%s\\\":\\\"%d\\\",\\\"%s\\\":\\\"%ld\\\"}\"",\
-                _BIN_PATH,_JSON_CMD_,cmd,_JSON_INDEX_,index);
+                _BIN_WATCH,_JSON_CMD_,cmd,_JSON_INDEX_,index);
             break;
 
        case _CMD_NOTIFY:
                 sprintf(dst,"%s \"{\\\"%s\\\":\\\"%d\\\",\\\"%s\\\":\\\"%ld\\\"}\"",
-                 _BIN_PATH,_JSON_CMD_,_CMD_NOTIFY,_JSON_INDEX_,index);
+                 _BIN_WATCH,_JSON_CMD_,_CMD_NOTIFY,_JSON_INDEX_,index);
                 break;
 
            default :
@@ -288,7 +298,8 @@ int manage_getSendPacket(char *dst,int *dstLen,Daemon_cmd_T cmd,unsigned long in
 }
 #endif
 /* return cmd .*/
-int manage_handleReceive(const char *recv,unsigned long *p_index, int *p_error)
+int manage_handleReceive(   const char *recv,unsigned long *p_index,
+                                    int *p_error,unsigned long *port)
 {
 
     int len = strlen(recv)+1,res =0;
@@ -328,7 +339,15 @@ int manage_handleReceive(const char *recv,unsigned long *p_index, int *p_error)
     switch(cmd)
     {
         case _CMD_INIT:
-            break;
+            /* get port */
+              len = strlen(recv)+1;
+              memset(p_buf,0,strlen(recv)+1);
+              
+              if((res = sjson_get_value(recv,_JSON_PORT_,p_buf,&len)) < 0)
+                  goto _HANDLE_RECV_ERROR;
+              *port = atoll(p_buf);
+              break;
+
             
        case _CMD_DESTORY:
             break;
