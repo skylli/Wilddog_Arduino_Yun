@@ -228,7 +228,6 @@ STATIC INLINE void WD_SYSTEM _wilddog_conn_session_statusSet
     if(p_wauth)
     {
         memcpy(&p_conn->d_token,p_wauth,AUTHR_LEN);
-        wilddog_debug("&&&& set token : [%0x][%0x][%0x][%0x]",p_wauth[0],p_wauth[1],p_wauth[2],p_wauth[3]);
         }
     return;
 }
@@ -443,7 +442,6 @@ STATIC int WD_SYSTEM _wilddog_conn_pong_cb
         if( pongIdx != ( p_conn->d_pong_num+1))
         {
             /*  server error*/
-            wilddog_debug("ack pong error set offline");
             _wilddog_conn_pongstatus_set(p_conn,WILDDOG_CONN_OFFLINE);
         }
         else

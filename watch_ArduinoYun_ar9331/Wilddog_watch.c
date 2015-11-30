@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #include <fcntl.h>
 #include <errno.h>
@@ -98,6 +99,7 @@ void file_deleteLine(FILE* fp, int deleLine)
 	}
 	
 } 
+
 static void file_readfile(const char *fileName)
 {
 	int buflen = 0;
@@ -125,15 +127,17 @@ static void file_readfile(const char *fileName)
 	memset(buffer,0,buflen);
 	file_readLine(fp,buffer,buflen);
 	printf("%s \n",buffer);
-	   
+	file_deleteLine(fp, 0);  
 	flock(fileno(fp), LOCK_UN);
-	file_deleteLine(fp, 0);
+
 	
 _CLOSE_FILE_:
+    if(buffer)
+        free(buffer);
 	fclose(fp);
 	return ;
 }	
-static int transfer_init(void)
+static int watch_init(void)
 {
 	struct sockaddr_in si_other;
 	int slen=sizeof(si_other);
@@ -149,7 +153,7 @@ static int transfer_init(void)
 	
 	return 0;
 }
-static int transfer_send(const char *src)
+static int transfer_send(const char *src,int daemon_port)
 {
 
 	struct sockaddr_in si_other;
@@ -157,7 +161,7 @@ static int transfer_send(const char *src)
 	
 	memset((char *) &si_other, 0, sizeof(si_other));
 	si_other.sin_family = AF_INET;
-	si_other.sin_port = htons(PORT);
+	si_other.sin_port = htons(daemon_port);
 	
 	if (inet_aton(SRV_IP, &si_other.sin_addr)==0) {
 		fprintf(stderr, "inet_aton() failed\n");
@@ -171,7 +175,7 @@ static int transfer_send(const char *src)
 
 	return res;
 } 
-static int transfer_receive(char *buf,int bufLen)
+static int watch_receive(char *buf,int bufLen)
 {
 	
 	struct sockaddr_in si_other;
@@ -191,17 +195,95 @@ static int transfer_receive(char *buf,int bufLen)
 	*/
 	return res;
 }
+static int watch_detectProcessByName(const char *p_name)
+{
+    DIR *dir;
+    int res = 1;
+    struct dirent *ptr;
+    FILE *fp;
+    char filepath[50];//大小随意，能装下cmdline文件的路径即可
+    char filetext[50];//大小随意，能装下要识别的命令行文本即可
+    dir = opendir("/proc"); //打开路径
+    if (NULL != dir)
+    {
+        while ((ptr = readdir(dir)) != NULL) //循环读取路径下的每一个文件/文件夹
+        {
+            //如果读取到的是"."或者".."则跳过，读取到的不是文件夹名字也跳过
+            if ((strcmp(ptr->d_name, ".") == 0) || (strcmp(ptr->d_name, "..") == 0)) continue;
+            if (DT_DIR != ptr->d_type) 
+                continue;
+           
+            sprintf(filepath, "/proc/%s/cmdline", ptr->d_name);//生成要读取的文件的路径
+            fp = fopen(filepath, "r");//打开文件
+            if (NULL != fp)
+            {
+                fread(filetext, 1, 50, fp);//读取文件
+                filetext[49] = '\0';//给读出的内容加上字符串结束符
+                //如果文件内容满足要求则打印路径的名字（即进程的PID）
+                if (filetext == strstr(filetext,p_name)) 
+                {
+                   // printf("PID:  %s\n", ptr->d_name);
+                    res = 0;
+                }
+                fclose(fp);
+            }
+           
+        }
+        closedir(dir);//关闭路径
+    }
+    return res;
+}
+/* */
+static int watch_getDaemonPort(const char *fileName)
+{
+	int buflen = 0,res = -1;
+	char *buffer = NULL;
+	FILE *fp = NULL;	
 
+	if ((fp=fopen(fileName,"r")) == NULL)   
+	{   
+	   //printf("read ::  Can't   open   file!/n");   
+	   return;
+	}  
+	/*if file empty.*/
+	buflen = getFilesize(fp);
+	if(buflen == 0)
+	   goto _GETPORT_END_;
+
+	buffer = (char*)malloc(buflen+1);
+	if( buffer == NULL )
+	   goto _GETPORT_END_;
+
+   	/*lock that file.*/
+	if( flock(fileno(fp), LOCK_EX) != 0)
+		goto _GETPORT_END_;
+	
+	memset(buffer,0,buflen);
+	file_readLine(fp,buffer,buflen);
+	printf("%s \n",buffer);
+    res = 0;
+    /* unlock that file.*/ 
+	flock(fileno(fp), LOCK_UN);
+
+_GETPORT_END_:
+
+    if(buffer)
+        free(buffer);
+	fclose(fp);
+	return res;
+}	
 int main(int argc, char **argv )
 {
 	
-	int res,index = 0, cmd = 0 ,len = 0;
+	int i,res,index = 0, cmd = 0 ,len = 0,daemon_port = 0;
 	
 	char recvBuffer[BUFLEN];
-	char file_name[256];
+	char file_name[BUFLEN];
+    char buffer[BUFLEN];
 	
 	memset(recvBuffer,0,BUFLEN);
-	memset(file_name,0,256);
+	memset(file_name,0,BUFLEN);
+    memset(buffer,0,BUFLEN);
 	if( argc < 2 )
 	{
 		
@@ -217,11 +299,21 @@ int main(int argc, char **argv )
 		printf("{\".cmd\":\"%d\",\".error\":\"%d\",\".index\":\"%d\",\".data\":\"%s\"}",0,-1,0,_ERROR_INPUT_CMD_FAULT_);
 		return -1;	
 	}
+    cmd = atoi(&cmd);
 
-	if(transfer_init() < 0 )
+	if(watch_init() < 0 )
 		return -1;
-
-	cmd = atoi(&cmd);
+    /* get daemon server port */
+    if( cmd != _CMD_INIT)
+    {	
+        len = BUFLEN;
+        if(sjson_get_value(argv[1],_JSON_SERVERPORT_,buffer,&len) < 0 )
+        {
+				printf("{\".cmd\":\"%d\",\".error\":\"%d\",\".index\":\"%d\"}",cmd,-1,0);
+				return -1;
+		}
+        daemon_port = atoi(buffer);
+    }   
 	if(cmd >= _CMD_MAX)
 	{
 		printf("{\".cmd\":\"%d\",\".error\":\"%d\",\".index\":\"%d\",\".data\":\"%s\"}",cmd,-1,0,"error cmd");
@@ -231,11 +323,25 @@ int main(int argc, char **argv )
 	switch(cmd)
 	{
 		case _CMD_INIT:
-			//res =system("./daemon &");
-			printf("{\".cmd\":\"%d\",\".error\":\"%d\",\".index\":\"%d\"}",cmd,-1,0);
-			//sleep(2);
-			//transfer_send(argv[1]);
-			return 0;	
+            /*find if that process running */
+            if(watch_detectProcessByName(_BIN_DAEMON))
+            {
+                if(system(_BIN_DAEMON) < 0 )
+                    printf("{\".cmd\":\"%d\",\".error\":\"%d\",\".index\":\"%d\"}",cmd,-1,0);
+
+			}
+            /* read file*/
+            sprintf(file_name,"%s%s",_FILE_PATH,_FILE_DAEMON_NAME_);    
+            for(i=0;i<4;i++)
+            {
+                
+                if((res = watch_getDaemonPort(file_name))>=0)
+                    break;
+                sleep(1);
+            }
+            if(res < 0 )
+                 printf("{\".cmd\":\"%d\",\".error\":\"%d\",\".index\":\"%d\"}",cmd,-1,0);
+			return res;	
 		case _CMD_ON:
 			len = 256;
 			if(sjson_get_value(argv[1],_JSON_INDEX_,file_name,&len) < 0 )
@@ -244,10 +350,10 @@ int main(int argc, char **argv )
 				return -1;
 			}
 			index = atoi(file_name);
-			memset(file_name,0,256);
+			memset(file_name,0,BUFLEN);
 			sprintf(file_name,"%s%s%d",_FILE_PATH,_FILE_NAME_,index);
 			//printf("reading file : %s \n",file_name);
-			transfer_send(argv[1]);
+			transfer_send(argv[1],daemon_port);
 			/* while for content*/
 			break;
 		case _CMD_NOTIFY:
@@ -258,7 +364,7 @@ int main(int argc, char **argv )
 				return -1;
 			}
 			index = atoi(file_name);
-			memset(file_name,0,256);
+			memset(file_name,0,BUFLEN);
 			sprintf(file_name,"%s%s%d",_FILE_PATH,_FILE_NAME_,index);
 			//printf("reading file : %s \n",file_name);
 			/****
@@ -268,7 +374,7 @@ int main(int argc, char **argv )
 			file_readfile((const char*)file_name);
 			return 0;
 		default:
-			res = transfer_send(argv[1]);
+			res = transfer_send(argv[1],daemon_port);
 			break;
 	}
 	
@@ -281,7 +387,7 @@ int main(int argc, char **argv )
 	{
 		while(1)
 		{
-			res = transfer_receive(recvBuffer,BUFLEN);
+			res = watch_receive(recvBuffer,BUFLEN);
 
 			if(res > 0)
 			{

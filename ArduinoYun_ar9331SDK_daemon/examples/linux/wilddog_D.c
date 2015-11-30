@@ -220,7 +220,7 @@ int Daemon_server_creat(void)
             _JSON_CMD_,_CMD_INIT,_JSON_SERVERPORT_,serverPort,_JSON_ERRORCODE_,0);
     }
 
-    wilddog_debug("get server port : %d",serverPort);
+    //wilddog_debug("get server port : %d",serverPort);
     /* creat file to save port number.*/
     sprintf(fileName,"%s",_FILE_PATH);
     /* */
@@ -315,7 +315,7 @@ int Daemon_server_recv(_Daemon_Node_T **pp_new,char *p_buf,int *p_bufLen)
 		//perror("receive error");
 		return res;
 	}
-#if 1    
+#if 0   
 	printf("Received packet from %s:%d\nData: %s\n\n", 
 		inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port), recv_buf);	
 	printf("Received dataLen : %d \n ",strlen(recv_buf));
@@ -351,15 +351,15 @@ static int file_write(const char *fileName,const char *str)
 	while( flock(fileno(fp), LOCK_EX) != 0 )
 	{
 		sleep(3);
-		printf("write :: file was locked ...\n");
+		//printf("write :: file was locked ...\n");
 	}
 	
 	fputs(str,fp);
     fputs(" \n",fp);
 	fflush(fp);
-	printf("write :: locking file \n");
+	//printf("write :: locking file \n");
 	flock(fileno(fp), LOCK_UN);
-	printf("write :: wiret done \n");
+	//printf("write :: wiret done \n");
 
 	if(fp)
 		fclose(fp);
@@ -561,9 +561,9 @@ STATIC void Daemon_cb_getValue
     }
 
     p_payload_str = Daemon_cb_parsePayload(p_snapshot);
-     printf("\ngetValue success %p \n",p_payload_str);
-     if(p_payload_str)
-        printf("\ngetValue success %s \n",p_payload_str);
+    // printf("\ngetValue success %p \n",p_payload_str);
+    // if(p_payload_str)
+    //    printf("\ngetValue success %s \n",p_payload_str);
     
 _GET_ACK:    
     Daemon_server_ack(p_node,err,p_node->index,p_payload_str);
@@ -1202,6 +1202,7 @@ int main(int argc, char** argv)
 
 	pid_t pid;
     pid = fork();
+
 	switch(pid)
 	{
 	    /* */
@@ -1209,7 +1210,7 @@ int main(int argc, char** argv)
             main_thread();
             break;
 		case -1:
-    		//printf( "{\".cmd\":\"9\",\".error\":\"-1\",\".index\":\"0\"}\n" );
+    		printf( "{\".cmd\":\"9\",\".error\":\"-1\",\".index\":\"0\"}\n" );
     		exit(-1);
 		default:
 		    exit(0);
