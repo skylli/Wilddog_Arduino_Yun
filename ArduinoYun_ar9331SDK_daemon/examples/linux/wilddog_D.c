@@ -1,12 +1,14 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <signal.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include "../../src/wilddog_endian.h"
 #include "wilddog.h"
@@ -342,7 +344,7 @@ static int file_write(const char *fileName,const char *str)
 	char newline = '\n';
 	FILE  *fp = NULL;
 	if(fileName == NULL)
-		return ;
+		return -1;
 	
 	fp = fopen(fileName, "a+");
 	if( fp == NULL)
@@ -511,21 +513,21 @@ static void Daemon_node_deleteFile(int index)
 #endif
 STATIC char *Daemon_cb_parsePayload(const Wilddog_Node_T* p_snapshot)
 {
-    char *p_recv_json = NULL,malloc_buf = NULL;
+    char *p_recv_json = NULL,*malloc_buf = NULL;
 
     if(p_snapshot)
      {
         
         p_recv_json = wilddog_debug_n2jsonString(p_snapshot); 
-        if(p_snapshot->d_wn_type == WILDDOG_NODE_TYPE_UTF8STRING)
+        if( p_snapshot->d_wn_type == WILDDOG_NODE_TYPE_UTF8STRING )
         {
             malloc_buf = (char*)malloc(strlen(p_recv_json)+20);
-            if(malloc_buf == NULL)
+            if( malloc_buf == NULL)
             {
                 return NULL;
             }
 
-            memset(malloc_buf,0,(strlen(p_recv_json)+20));
+            memset( malloc_buf,0,(strlen(p_recv_json)+20));
 
             sprintf(malloc_buf,"\"%s\"",p_recv_json);
             wfree(p_recv_json);
