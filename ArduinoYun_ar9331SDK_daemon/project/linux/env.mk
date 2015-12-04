@@ -2,7 +2,7 @@
 # Top level pattern, include by Makefile of child directory
 # in which variable like TOPDIR, TARGET or LIB may be needed
 
-CC=mips-openwrt-linux-gcc
+CC=gcc#mips-openwrt-linux-gcc
 MAKE=make
 
 UNAR=ar x
@@ -15,7 +15,7 @@ else
 QUIET = @
 MAKE += --no-print-directory
 endif
-CFLAGS+=-Wall -pthread  -O2
+CFLAGS+=-Wall -pthread  -O2 -g
 
 ifeq ($(COVER), 1)
 CFLAGS+= -fprofile-arcs -ftest-coverage

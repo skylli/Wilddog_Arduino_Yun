@@ -1,8 +1,6 @@
-
 #include <stdio.h>
-
-#define _ISDIGIT_(a)    ((a) !=NULL && \
-                            ((a)>='0' && (a)<= '9'))
+#include <string.h>
+#define _ISDIGIT_(a)    ( (a)>='0' && (a)<= '9')
 
 #if 0
 /***
@@ -79,13 +77,13 @@ long int atoll(const char *str)
     if(str== NULL)
         return 0;
     
-    p = skip_space(str); 
+    p = (char*)skip_space(str); 
     
     if(p== NULL)
         return 0;
     
     sign=(*p == '-')?-1:1;  
-    if(*p=='+'||*p==' -')     //跳过符号位  
+    if(*p=='+'||*p=='-')     //跳过符号位  
         p++;  
     for(n=0;_ISDIGIT_(*p);p++)  
         n=10*n+(*p-'0');        //将数字字符转换成整形数字  

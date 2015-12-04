@@ -73,6 +73,7 @@ Wilddog_T wilddog_initWithUrl(Wilddog_Str_T *url)
 */
 Wilddog_Return_T wilddog_destroy(Wilddog_T *p_wilddog)
 {
+
     wilddog_assert(p_wilddog, 0);
 
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_DESTROYREF, \

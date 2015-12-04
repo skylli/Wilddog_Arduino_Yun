@@ -1,58 +1,17 @@
-mips-openwrt-linux-gcc    -c -o Wilddog_watch.o Wilddog_watch.c
-Wilddog_watch.c: In function 'transfer_send':
-Wilddog_watch.c:168:2: warning: passing argument 5 of 'sendto' from incompatible pointer type [enabled by default]
-  if ( (res = sendto( l_socket, src, strlen(src), 0, &si_other, slen))==-1)
-  ^
-In file included from Wilddog_watch.c:8:0:
-/home/sky/Documents/openwrt/staging_dir/toolchain-mips_34kc_gcc-4.8-linaro_uClibc-0.9.33.2/include/sys/socket.h:155:16: note: expected 'const struct sockaddr *' but argument is of type 'struct sockaddr_in *'
- extern ssize_t sendto (int __fd, __const void *__buf, size_t __n,
-                ^
-Wilddog_watch.c: In function 'watch_receive':
-Wilddog_watch.c:182:2: warning: passing argument 5 of 'recvfrom' from incompatible pointer type [enabled by default]
-  if ( ( res = recvfrom(l_socket, buf, bufLen, MSG_DONTWAIT, &si_other, &slen))==-1)
-  ^
-In file included from Wilddog_watch.c:8:0:
-/home/sky/Documents/openwrt/staging_dir/toolchain-mips_34kc_gcc-4.8-linaro_uClibc-0.9.33.2/include/sys/socket.h:166:16: note: expected 'struct sockaddr * __restrict__' but argument is of type 'struct sockaddr_in *'
- extern ssize_t recvfrom (int __fd, void *__restrict __buf, size_t __n,
-                ^
-Wilddog_watch.c: In function 'main':
-Wilddog_watch.c:295:2: warning: passing argument 3 of 'sjson_get_value' from incompatible pointer type [enabled by default]
-  if(sjson_get_value(argv[1],_JSON_CMD_,&cmd,&len) < 0 )
-  ^
-Wilddog_watch.c:30:12: note: expected 'char *' but argument is of type 'int *'
- extern int sjson_get_value(const char *input, const char *name,
-            ^
-Wilddog_watch.c:300:5: warning: passing argument 1 of 'atoi' from incompatible pointer type [enabled by default]
-     cmd = atoi(&cmd);
-     ^
-In file included from Wilddog_watch.c:2:0:
-/home/sky/Documents/openwrt/staging_dir/toolchain-mips_34kc_gcc-4.8-linaro_uClibc-0.9.33.2/include/stdlib.h:161:12: note: expected 'const char *' but argument is of type 'int *'
- extern int atoi (__const char *__nptr)
-            ^
-mips-openwrt-linux-gcc    -c -o sjson.o sjson.c
-sjson.c: In function 'strstr':
-sjson.c:58:22: warning: incompatible implicit declaration of built-in function 'strlen' [enabled by default]
-     const size_t len=strlen(s2);
-                      ^
-sjson.c:59:13: warning: incompatible implicit declaration of built-in function 'strchr' [enabled by default]
-     for(;(p=strchr(p,*s2))!=0;p++)
-             ^
-sjson.c: In function 'atoll':
-sjson.c:82:7: warning: assignment discards 'const' qualifier from pointer target type [enabled by default]
+gcc    -c -o Wilddog_watch.o Wilddog_watch.c
+gcc    -c -o sjson.o sjson.c
+sjson.c: In function ‘atoll’:
+sjson.c:81:7: warning: assignment discards ‘const’ qualifier from pointer target type [enabled by default]
      p = skip_space(str); 
        ^
-sjson.c:88:21: warning: multi-character character constant [-Wmultichar]
+sjson.c:87:21: warning: multi-character character constant [-Wmultichar]
      if(*p=='+'||*p==' -')     //跳过符号位  
                      ^
-sjson.c:4:30: warning: comparison between pointer and integer [enabled by default]
+sjson.c:3:30: warning: comparison between pointer and integer [enabled by default]
  #define _ISDIGIT_(a)    ((a) !=NULL && \
                               ^
-sjson.c:90:13: note: in expansion of macro '_ISDIGIT_'
+sjson.c:89:13: note: in expansion of macro ‘_ISDIGIT_’
      for(n=0;_ISDIGIT_(*p);p++)  
              ^
-sjson.c: In function 'sjson_get_value':
-sjson.c:163:5: warning: incompatible implicit declaration of built-in function 'memset' [enabled by default]
-     memset(output, 0, *maxlen);
-     ^
-mips-openwrt-linux-gcc  -o wilddog_watch Wilddog_watch.o sjson.o 
+gcc  -o wilddog_watch Wilddog_watch.o sjson.o 
 rm Wilddog_watch.o sjson.o 

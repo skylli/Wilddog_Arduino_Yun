@@ -14,7 +14,7 @@ DEMO_OBJS=$(patsubst %.c, %, $(DEMO_SRCS))
 demoall:
 	@for demo_obj in $(DEMO_OBJS);\
 		do\
-			$(CC) $(CFLAGS) -o $$demo_obj $$demo_obj.c $(LDFLAGS);\
+			$(CC) $(CFLAGS) -g -o $$demo_obj $$demo_obj.c $(LDFLAGS);\
 			mv $$demo_obj $(TOPDIR)/bin;\
 			rm -rf *.d.* *.d;\
 		done

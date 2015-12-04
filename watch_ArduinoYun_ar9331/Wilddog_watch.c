@@ -166,7 +166,7 @@ static int transfer_send(const char *src,int daemon_port)
 		fprintf(stderr, "inet_aton() failed\n");
 		return -1;
 	}
-	if ( (res = sendto( l_socket, src, strlen(src), 0, &si_other, slen))==-1)
+	if ( (res = sendto( l_socket, src, strlen(src), 0,(const struct sockaddr*) &si_other, slen))==-1)
 	{
 		perror("send error");
 		return -1;
@@ -180,7 +180,7 @@ static int watch_receive(char *buf,int bufLen)
 	struct sockaddr_in si_other;
 	int res = 0,slen=sizeof(si_other);
 	
-	if ( ( res = recvfrom(l_socket, buf, bufLen, MSG_DONTWAIT, &si_other, &slen))==-1)
+	if ( ( res = recvfrom(l_socket, buf, bufLen, MSG_DONTWAIT,(struct sockaddr*) &si_other, &slen))==-1)
 		return -1;
 	/**
 	else
@@ -293,12 +293,12 @@ int main(int argc, char **argv )
 
 	//printf(" arg %s \n",argv[1]);
 	len = sizeof(cmd);
-	if(sjson_get_value(argv[1],_JSON_CMD_,&cmd,&len) < 0 )
+	if(sjson_get_value(argv[1],_JSON_CMD_,(char*)&cmd,&len) < 0 )
 	{
 		printf("{\".cmd\":\"%d\",\".error\":\"%d\",\".index\":\"%d\",\".data\":\"%s\"}",0,-1,0,_ERROR_INPUT_CMD_FAULT_);
 		return -1;	
 	}
-    cmd = atoi(&cmd);
+    cmd = atoi((char*)&cmd);
 
 	if(watch_init() < 0 )
 		return -1;

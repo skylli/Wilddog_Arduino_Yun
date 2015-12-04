@@ -5,7 +5,8 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <signal.h>
-
+#include <string.h>
+#include <sys/file.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -13,7 +14,6 @@
 #include "../../src/wilddog_endian.h"
 #include "wilddog.h"
 #include "utlist.h"
-
 #include "wilddog_D.h"
 #define _DAEMON_SERVER_PORT (9527)
 #define _DAEMON_CLIENT_IP 	"127.0.0.1"
@@ -22,14 +22,12 @@
 #define _ACK_NOINDEX    "class init fault."
 #define _ACK_JSON_NOCMD    "cmd not find."
 
-
-
 typedef struct _DAEMON_NODE_T{
 	struct _DAEMON_NODE_T *next;
 
     Wilddog_Address_T d_srcAddr;
     
-	int index;
+	Wilddog_T index;
 	Daemon_cmd_T cmd;
     Wilddog_EventType_T event_type;
 }_Daemon_Node_T;
@@ -47,12 +45,13 @@ typedef enum _DAEMON_JSONTYPE_T{
 static _Daemon_Node_T *l_p_hd = NULL;
 static int l_destory_flag = 0;
 static int l_fd = 0;
-static int l_trysyncRunning = 0;
 
 extern Wilddog_Str_T  * WD_SYSTEM wilddog_debug_n2jsonString
         (
     Wilddog_Node_T* p_head
     );
+
+extern  Wilddog_Node_T *wilddog_jsonStr2node(const char *value);
 
 int Daemon_server_recv(_Daemon_Node_T **pp_new,char *p_buf,int *p_bufLen);
 static int Daemon_json_parse(const char *src,const char *name,char *dst,int dstLen);
@@ -207,7 +206,7 @@ int Daemon_server_creat(void)
     si_me.sin_family = AF_INET;
    // si_me.sin_port = htons(_DAEMON_SERVER_PORT);
     si_me.sin_addr.s_addr = htonl(INADDR_ANY);
-    if ( (res = bind(l_fd, &si_me, sizeof(si_me)))==-1)
+    if ( (res = bind(l_fd,(const struct sockaddr*)&si_me, sizeof(si_me)))==-1)
     {
         sprintf(responBuff,"{\"%s\":\"%d\",\"%s\":\"%d\",\"%s\":\"%d\"}",\
             _JSON_CMD_,_CMD_INIT,_JSON_SERVERPORT_,0,_JSON_ERRORCODE_,-1);    
@@ -216,7 +215,7 @@ int Daemon_server_creat(void)
     {
         len = sizeof(struct sockaddr_in);
         memset(&si_me,0,len);
-        getsockname(l_fd,&si_me,&len);
+        getsockname(l_fd,(struct sockaddr*)&si_me,(socklen_t*)&len);
         serverPort = ntohs(si_me.sin_port);
         sprintf(responBuff,"{\"%s\":\"%d\",\"%s\":\"%d\",\"%s\":\"%d\"}",\
             _JSON_CMD_,_CMD_INIT,_JSON_SERVERPORT_,serverPort,_JSON_ERRORCODE_,0);
@@ -288,7 +287,6 @@ static int Daemon_server_send(Wilddog_Address_T* addr_in,\
     servaddr.sin_port = wilddog_htons(addr_in->port);
     memcpy(&servaddr.sin_addr.s_addr,addr_in->ip,addr_in->len);
 
-
     wilddog_debug_level(WD_DEBUG_LOG, "addr_in->port = %d, ip = %u.%u.%u.%u\n", addr_in->port, addr_in->ip[0], \
         addr_in->ip[1], addr_in->ip[2], addr_in->ip[3]);
     
@@ -299,20 +297,17 @@ static int Daemon_server_send(Wilddog_Address_T* addr_in,\
     }
     return ret;
 }
-
 int Daemon_server_recv(_Daemon_Node_T **pp_new,char *p_buf,int *p_bufLen)
 {
 	struct sockaddr_in   si_other;
-	int s, i, slen=sizeof(si_other);
+	int slen=sizeof(si_other);
 	char recv_buf[_RECV_BUFFERLEN];
 	int res = 0;
 
 	memset((char *) recv_buf, 0, sizeof(recv_buf));	
 	memset((char *) p_buf, 0, *p_bufLen );
 	
-
-
-	if ( (res = recvfrom(l_fd, recv_buf, _RECV_BUFFERLEN, MSG_DONTWAIT, &si_other, &slen))==-1)
+	if ( (res = recvfrom(l_fd, recv_buf, _RECV_BUFFERLEN, MSG_DONTWAIT,(struct sockaddr *) &si_other, (socklen_t*)&slen))==-1)
 	{
 		//perror("receive error");
 		return res;
@@ -341,7 +336,6 @@ int Daemon_server_recv(_Daemon_Node_T **pp_new,char *p_buf,int *p_bufLen)
 #if 1
 static int file_write(const char *fileName,const char *str)
 {
-	char newline = '\n';
 	FILE  *fp = NULL;
 	if(fileName == NULL)
 		return -1;
@@ -369,20 +363,18 @@ static int file_write(const char *fileName,const char *str)
 	return  0;
 	
 } 
-static void Daemon_file_clear(void)
+static int Daemon_file_clear(void)
 {
     char p_filename[_RECV_BUFFERLEN];
     
     memset(p_filename,0,_RECV_BUFFERLEN);
     sprintf(p_filename,"rm %s%s*",_FILE_PATH,_FILE_NAME_);
-    system(p_filename);
+    return system(p_filename);
 }
 static int Daemon_server_ack2File(_Daemon_Node_T *p_node,int error,int index,char *data)
 {
-    int fd = 0;
     char buf[_RECV_BUFFERLEN],p_filename[_RECV_BUFFERLEN];
-    size_t length = 0;
-
+    
     memset(buf,0,_RECV_BUFFERLEN);
     memset(p_filename,0,_RECV_BUFFERLEN);
     if(data)
@@ -446,7 +438,8 @@ static int Daemon_json_getIndex(const char *src)
     memset(tmp, 0, sizeof(tmp));
     if(Daemon_json_parse(src,_JSON_INDEX_,tmp,sizeof(tmp)) < 0 )
         return 0;
-    
+
+    //wilddog_debug("get json value : %s \n",tmp);
     return atoi(tmp);
 }
 _Daemon_Node_T *Daemon_node_creat(struct sockaddr_in *p_remaddr)
@@ -474,7 +467,7 @@ static int Daemon_node_register(_Daemon_Node_T* p_node,Daemon_cmd_T cmd,int inde
 	LL_APPEND(l_p_hd,p_node);
     return 0;
 }
-static BOOL *Daemon_node_exist(int getIndex)
+static BOOL Daemon_node_exist(int getIndex)
 {
     _Daemon_Node_T *curr,*tmp;
     LL_FOREACH_SAFE(l_p_hd,curr,tmp)
@@ -518,7 +511,7 @@ STATIC char *Daemon_cb_parsePayload(const Wilddog_Node_T* p_snapshot)
     if(p_snapshot)
      {
         
-        p_recv_json = wilddog_debug_n2jsonString(p_snapshot); 
+        p_recv_json =(char*) wilddog_debug_n2jsonString((Wilddog_Node_T*)p_snapshot); 
         if( p_snapshot->d_wn_type == WILDDOG_NODE_TYPE_UTF8STRING )
         {
             malloc_buf = (char*)malloc(strlen(p_recv_json)+20);
@@ -573,7 +566,7 @@ _GET_ACK:
     if(p_node->cmd == _CMD_ON)
         Daemon_server_ack2File(p_node,err,p_node->index,p_recv_json);
 #endif
-    wilddog_debug_level(WD_DEBUG_LOG,"recv node %p index :%d",p_node,p_node->index);
+    wilddog_debug_level(WD_DEBUG_LOG,"recv node %p index :%ld",p_node,p_node->index);
     wfree(p_payload_str);
     
     if(p_node->cmd != _CMD_ON) 
@@ -644,7 +637,7 @@ _PUSH_ACK:
 
    if(p_path) 
    {
-        p_payloadStr = wmalloc(strlen(p_path)+10);
+        p_payloadStr = wmalloc(strlen((const char*)p_path)+10);
         if(p_payloadStr)
         {
             memset(p_payloadStr,0,strlen(p_payloadStr) +10);
@@ -662,7 +655,7 @@ _PUSH_ACK:
 
 static int Daemon_cmd_intwithurl(_Daemon_Node_T *p_new,const char *src)
 {
-    int index = 0,res =0;
+    Wilddog_T index = 0;
     char url[_RECV_BUFFERLEN];
 
     memset(url,0,_RECV_BUFFERLEN);
@@ -672,7 +665,7 @@ static int Daemon_cmd_intwithurl(_Daemon_Node_T *p_new,const char *src)
 
     //wilddog_debug("url %s ",url);
     
-    index = wilddog_initWithUrl(url);
+    index = wilddog_initWithUrl((u8*)url);
     //wilddog_debug("get index : %p",index);
     if(index == 0)
        goto ACK_ERROR;
@@ -725,13 +718,13 @@ static int Daemon_cmd_addObserver(_Daemon_Node_T *p_node,const char *src)
     int event_type = 0;
     
     if( (index  = Daemon_json_getIndex(src)) == 0 ||
-        Daemon_json_parse(src,_JSON_EVENTTYPE_,&event_type,sizeof(event_type)) < 0 )
+        Daemon_json_parse(src,_JSON_EVENTTYPE_,(char*)&event_type,sizeof(event_type)) < 0 )
         goto _ADDOBSERVER_REQUEST_ERROR;
     
     if(index == 0)
         goto _ADDOBSERVER_REQUEST_ERROR;
 
-    event_type = atoi(&event_type);
+    event_type = atoi((char*)&event_type);
     Daemon_node_register(p_node,_CMD_ON,index);
     p_node->event_type = event_type;
     res = wilddog_addObserver( index, event_type,\
@@ -760,13 +753,13 @@ static int Daemon_cmd_offObserver
     Wilddog_EventType_T event_type = 0;
 
     if( (index  = Daemon_json_getIndex(src)) == 0 ||
-        Daemon_json_parse(src,_JSON_EVENTTYPE_,&event_type,sizeof(event_type)) < 0 )
+        Daemon_json_parse(src,_JSON_EVENTTYPE_,(char*)&event_type,sizeof(event_type)) < 0 )
         goto OFFOBSERVER_REQUEST_ERROR;
     
     if(index == 0)
        goto OFFOBSERVER_REQUEST_ERROR;
     
-    event_type = atoi(&event_type);
+    event_type = atoi((char*)&event_type);
     
     res = wilddog_removeObserver(index, event_type);
     if(res < 0 )
@@ -826,15 +819,16 @@ static int Daemon_cmd_setValue(_Daemon_Node_T *p_node,const char *src)
 {
     int index = 0,res = -1;
     unsigned char data[_DAEMON_NODE_LEN];
-    Wilddog_Node_T * p_wd_node = NULL,*p_wd_head = NULL;
+    Wilddog_Node_T *p_wd_head = NULL;
     
     memset(data,0,_DAEMON_NODE_LEN);
 
 
     
-    wilddog_debug_level(WD_DEBUG_LOG,"payload data:",src);
-    if((index  = Daemon_json_getIndex(src)) == 0 ||
-        Daemon_json_parse(src,_JSON_DATA_,data,_DAEMON_NODE_LEN) < 0 )
+    wilddog_debug_level(WD_DEBUG_LOG,"payload data: %s",src);
+    index  = Daemon_json_getIndex(src);
+    if(( index == 0 ) || \
+        (Daemon_json_parse(src,_JSON_DATA_,(char*)data,_DAEMON_NODE_LEN) < 0) )
         goto _SETVALUE_REQUEST;
     if(index == 0)
         goto _SETVALUE_REQUEST;
@@ -842,7 +836,7 @@ static int Daemon_cmd_setValue(_Daemon_Node_T *p_node,const char *src)
     Daemon_node_register(p_node,_CMD_SET,index);
 
     /*Create an node */
-    p_wd_head = wilddog_jsonStr2node(data);
+    p_wd_head = wilddog_jsonStr2node((char*)data);
 
     //wilddog_debug_printnode(p_wd_head);
     
@@ -869,18 +863,18 @@ static int Daemon_cmd_push(_Daemon_Node_T *p_node,const char *src)
 {
     int index = 0,res = -1;
     unsigned char data[_DAEMON_NODE_LEN];
-    Wilddog_Node_T * p_wd_node = NULL,*p_wd_head = NULL;
+    Wilddog_Node_T *p_wd_head = NULL;
     
     memset(data,0,_DAEMON_NODE_LEN);
 
     if((index  = Daemon_json_getIndex(src)) == 0 ||
-        Daemon_json_parse(src,_JSON_DATA_,data,_DAEMON_NODE_LEN) < 0  )
+        Daemon_json_parse(src,_JSON_DATA_,(char*)data,_DAEMON_NODE_LEN) < 0  )
         goto _SETVALUE_REQUEST;
     
     Daemon_node_register(p_node,_CMD_PUSH,index);
 
         /*Create an node which type is an object*/
-    p_wd_head = wilddog_jsonStr2node(data);
+    p_wd_head = wilddog_jsonStr2node((char*)data);
 
     //wilddog_debug_printnode(p_wd_head);
     
@@ -947,20 +941,26 @@ static int Daemon_cmd_init(_Daemon_Node_T *p_node,const char *src)
 
 static int Daemon_cmd_destory(_Daemon_Node_T *p_node,const char *src)
 {
-    
+    int res = 0;
     l_destory_flag= 1;
     p_node->cmd = _CMD_DESTORY;
-    Daemon_server_ack(p_node,0,0,NULL);
-    Daemon_node_destory(&p_node);
 
+    wilddog_debug();
     /* clearn the file*/
-    Daemon_file_clear();
-
-    return 0;
+    res =  Daemon_file_clear();
+    if(res <0)
+       Daemon_server_ack(p_node,-1,0,NULL); 
+    else
+        Daemon_server_ack(p_node,0,0,NULL);
+    
+    Daemon_node_destory(&p_node);
+    return res;
+    
 }
 static int Daemon_cmd_destory_wilddog(_Daemon_Node_T *p_node,const char *src)
 {
-    int wd_index = 0,index = 0 , res = -1;
+    Wilddog_T index = 0;
+    int res = -1;
     _Daemon_Node_T *curr = NULL, *tmp = NULL;
 
     
@@ -979,9 +979,7 @@ static int Daemon_cmd_destory_wilddog(_Daemon_Node_T *p_node,const char *src)
             return -1;
     }
     /*wait for trysunc thread*/
-    wd_index = index;
     Daemon_server_ack(p_node,res,index,NULL);
-    
     Daemon_node_destory(&p_node);
     LL_FOREACH_SAFE(l_p_hd,curr,tmp)
     {
@@ -990,12 +988,13 @@ static int Daemon_cmd_destory_wilddog(_Daemon_Node_T *p_node,const char *src)
             Daemon_node_destory(&curr);
          }
     }
-    wilddog_destroy((Wilddog_T*)&wd_index);
     
+    wilddog_destroy((Wilddog_T *)&index);
     
     return res;
     
 _DESTORY_REQUEST:
+    
     Daemon_server_ack(p_node,res,index,NULL);
     Daemon_node_destory(&p_node);
     return res;
@@ -1005,7 +1004,7 @@ static int Daemon_handleReceive(_Daemon_Node_T *p_new,const char *buf)
 {
     int cmd = 0,res = 0;
     
-    if( Daemon_json_parse(buf,_JSON_CMD_,&cmd,sizeof(cmd)) < 0 )
+    if( Daemon_json_parse(buf,_JSON_CMD_,(char*)&cmd,sizeof(cmd)) < 0 )
      {
         
         Daemon_server_ack(p_new,-1,0,_ACK_JSON_NOCMD);
@@ -1013,7 +1012,7 @@ static int Daemon_handleReceive(_Daemon_Node_T *p_new,const char *buf)
         return -1;
     }
 
-    cmd =  atoi(&cmd);
+    cmd =  atoi((char*)&cmd);
 
     /* node must be exit in link list.*/
     if( cmd == _CMD_GET ||
@@ -1092,7 +1091,7 @@ int Daemon_init(void)
 void Daemon_deInit(void)
 {
     _Daemon_Node_T *curr = NULL, *tmp = NULL;
-    int wd_index = 0;
+    Wilddog_T wd_index = 0;
     
     LL_FOREACH_SAFE(l_p_hd,curr,tmp)
     {
@@ -1109,9 +1108,6 @@ int main_thread(void)
 {
     int res = 0,bufLen  = _RECV_BUFFERLEN;
     char buf[_RECV_BUFFERLEN];
-   
-    void *exit_arg = NULL;
-    
 /***
      if(freopen("./log","w",stdout)==NULL)
           fprintf(stderr, "error redirecting stdout to log \n");
@@ -1157,6 +1153,7 @@ int main_thread(void)
     /*destory all */
     Daemon_deInit();
   
+  wilddog_debug();
     return res;
     
 }
@@ -1203,8 +1200,12 @@ int main(int argc, char** argv)
 {
 
 	pid_t pid;
-    pid = fork();
+    
 
+    main_thread();
+
+    return 0;
+    pid = fork();
 	switch(pid)
 	{
 	    /* */

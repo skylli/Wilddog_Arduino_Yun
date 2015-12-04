@@ -1,5 +1,5 @@
 #makefile
-CC=mips-openwrt-linux-gcc
+CC=gcc#mips-openwrt-linux-gcc
 FLAGS = -Wall
 
 objects = Wilddog_watch.o sjson.o 
