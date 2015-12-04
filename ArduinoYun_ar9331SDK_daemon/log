@@ -1,6 +1,0 @@
-Makefile:5: Do not assign a PORT_TYPE, use linux as default.
-Makefile:12: Do not assign a APP_SEC_TYPE, use nosec as default.
-Building example
-/mnt/hgfs/project/arduino/Wilddog_Arduino_Yun/ArduinoYun_ar9331SDK_daemon/project/linux/../..//lib/libwilddog.a(wilddog_posix.o): In function `wilddog_gethostbyname':
-wilddog_posix.c:(.text+0x14): warning: gethostbyname is obsolescent, use getnameinfo() instead.
-Build example end!
