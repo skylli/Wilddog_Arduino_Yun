@@ -60,6 +60,8 @@
 
 ######4、安装`ArduinoYun_ar9331_Bin`
 	
+	root@Arduino:~# opkg update
+	root@Arduino:~# opkg install lrzsz
 	root@Arduino:~# rz	（在弹出的窗口中选择ArduinoYun_ar9331_Bin，点击确定）
 	root@Arduino:~# ls
 	ArduinoYun_ar9331_Bin.zip

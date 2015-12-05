@@ -32,10 +32,10 @@ extern int sjson_get_value(const char *input, const char *name,
                         char *output, int *maxlen);
 	
 
-long getFilesize( FILE *fp )
+int getFilesize( FILE *fp )
 {
     long int save_pos;
-    long size_of_file;
+    int size_of_file;
 
     /* Save the current position. */
     save_pos = ftell( fp );
@@ -194,6 +194,7 @@ static int watch_receive(char *buf,int bufLen)
 	*/
 	return res;
 }
+
 static int watch_detectProcessByName(const char *p_name)
 {
     DIR *dir;
@@ -242,11 +243,11 @@ static int watch_getDaemonPort(const char *fileName)
 	if ((fp=fopen(fileName,"r")) == NULL)   
 	{   
 	   //printf("read ::  Can't   open   file!/n");   
-	   return;
+	   return res;
 	}  
 	/*if file empty.*/
 	buflen = getFilesize(fp);
-	if(buflen == 0)
+	if(buflen <= 0)
 	   goto _GETPORT_END_;
 
 	buffer = (char*)malloc(buflen+1);
@@ -256,10 +257,10 @@ static int watch_getDaemonPort(const char *fileName)
    	/*lock that file.*/
 	if( flock(fileno(fp), LOCK_EX) != 0)
 		goto _GETPORT_END_;
-	
+    
 	memset(buffer,0,buflen);
 	file_readLine(fp,buffer,buflen);
-	printf("%s \n",buffer);
+	printf("%s /n",buffer);
     res = 0;
     /* unlock that file.*/ 
 	flock(fileno(fp), LOCK_UN);
@@ -271,6 +272,14 @@ _GETPORT_END_:
 	fclose(fp);
 	return res;
 }	
+static int watch_file_clear(void)
+{
+    char p_filename[BUFLEN];
+    
+    memset(p_filename,0,BUFLEN);
+    sprintf(p_filename,"rm %s%s*",_FILE_PATH,_FILE_NAME_);
+    return system(p_filename);
+}
 int main(int argc, char **argv )
 {
 	
@@ -325,13 +334,15 @@ int main(int argc, char **argv )
             /*find if that process running */
             if(watch_detectProcessByName(_BIN_DAEMON))
             {
+                watch_file_clear();
                 if(system(_BIN_DAEMON) < 0 )
                     printf("{\".cmd\":\"%d\",\".error\":\"%d\",\".index\":\"%d\"}",cmd,-1,0);
 
 			}
+            
             /* read file*/
             sprintf(file_name,"%s%s",_FILE_PATH,_FILE_DAEMON_NAME_);    
-            for(i=0;i<4;i++)
+            for(i=0;i<10;i++)
             {
                 
                 if((res = watch_getDaemonPort(file_name))>=0)
@@ -340,7 +351,9 @@ int main(int argc, char **argv )
             }
             if(res < 0 )
                  printf("{\".cmd\":\"%d\",\".error\":\"%d\",\".index\":\"%d\"}",cmd,-1,0);
-			return res;	
+            
+			
+            return res;	
 		case _CMD_ON:
 			len = 256;
 			if(sjson_get_value(argv[1],_JSON_INDEX_,file_name,&len) < 0 )

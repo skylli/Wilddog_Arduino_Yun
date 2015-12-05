@@ -1200,11 +1200,7 @@ int main(int argc, char** argv)
 {
 
 	pid_t pid;
-    
-
-    main_thread();
-
-    return 0;
+    /* star process as an daemon.*/
     pid = fork();
 	switch(pid)
 	{
