@@ -945,7 +945,6 @@ static int Daemon_cmd_destory(_Daemon_Node_T *p_node,const char *src)
     l_destory_flag= 1;
     p_node->cmd = _CMD_DESTORY;
 
-    wilddog_debug();
     /* clearn the file*/
     res =  Daemon_file_clear();
     if(res <0)
@@ -1153,7 +1152,6 @@ int main_thread(void)
     /*destory all */
     Daemon_deInit();
   
-  wilddog_debug();
     return res;
     
 }
@@ -1194,7 +1192,6 @@ int Daemon_findProgressByName()
 
     return 0;
 }
-
 #endif
 int main(int argc, char** argv)
 {

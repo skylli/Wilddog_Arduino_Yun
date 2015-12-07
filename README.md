@@ -67,18 +67,16 @@
 	ArduinoYun_ar9331_Bin.zip
 	root@Arduino:~# tar zxvf  ArduinoYun_ar9331_Bin.tar.gz
 	
-	把`ArduinoYun_ar9331_Bin`解压并添加系统`PATH`:
 	root@Arduino:~# tar zxvf ArduinoYun_ar9331_Bin.tar.gz
 	root@Arduino:~# cd ArduinoYun_ar9331_Bin
-	root@Arduino:~/ArduinoYun_ar9331_Bin# ls
-	install.sh        uninstall.sh      wilddog_daemon    wilddog_transfer
-	root@Arduino:~/ArduinoYun_ar9331_Bin# sh install.sh
-	root@Arduino:~/ArduinoYun_ar9331_Bin# ls /user/bin/wilddog*
-	/usr/bin/wilddog_daemon    /usr/bin/wilddog_transfer  (有这两个文件代表安装成功)
-
+	root@Arduino:~/ArduinoYun_ar9331_Bin# opkg install wilddog_D_1_ar71xx.ipk
+	root@Arduino:~/ArduinoYun_ar9331_Bin# opkg install wilddog_watch_1_ar71xx.ipk
+	root@Arduino:~# wilddog_(tab，有以下可执行命令表面安装成功)
+	wilddog_D      wilddog_watch
 		
 ######5、卸载`ArduinoYun_ar9331_Bin`:
-	root@Arduino:~/ArduinoYun_ar9331_Bin# sh uninstall.sh
+	root@Arduino:~/ArduinoYun_ar9331_Bin# opkg remove --force-remove wilddog_watch
+	root@Arduino:~/ArduinoYun_ar9331_Bin# opkg remove --force-remove wilddog_D
 
 ######6、安装`ArduinoLibrary`库
 
