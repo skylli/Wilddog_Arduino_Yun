@@ -39,7 +39,7 @@ define Package/wilddog_D
     SECTION:=utils
     CATEGORY:=Utilities
     TITLE:=wilddog_D -- prints a snarky message
-    DEPENDS:=+libstdcpp +libc
+    DEPENDS:=+libstdcpp +libc +libwilddog
 endef
 
 

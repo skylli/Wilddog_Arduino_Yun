@@ -11,8 +11,8 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <unistd.h>
-//#include "wilddog_endian.h"
-#include "wilddog.h"
+
+#include <libwilddog/wilddog.h>
 #include "utlist.h"
 #include "wilddog_D.h"
 #define _DAEMON_SERVER_PORT (9527)

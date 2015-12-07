@@ -1,7 +1,7 @@
 #makefile
 #CC=gcc#mips-openwrt-linux-gcc
 #FLAGS = -Wall
-LDFLAGS := ./libwilddog.a -lm
+LDFLAGS := -lwilddog
 
 objects = wilddog_D.o
 wilddog_D : $(objects)
