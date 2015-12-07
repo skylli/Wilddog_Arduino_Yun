@@ -56,7 +56,7 @@ long int Connect::_connect_send(Daemon_cmd_T cmd,Wilddog_EventType_T event,unsig
 	if( res > 0 && strlen(p_buf) > 0 )
 	{
 		_p.asyncSend(p_buf);	
-#if 1	
+#if 0	
 		if(cmd != _CMD_NOTIFY)
 		{
 			/* DEBUGing....*/
