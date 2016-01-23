@@ -1,5 +1,5 @@
 ##############################################
-# OpenWrt Makefile for wilddog_watch program
+# OpenWrt Makefile for demo program
 #
 #
 # Most of the variables used here are defined in
@@ -19,7 +19,7 @@
 include $(TOPDIR)/rules.mk
 
 # Name and release number of this package
-PKG_NAME:=wilddog_watch
+PKG_NAME:=demo
 PKG_RELEASE:=1
 
 
@@ -35,11 +35,11 @@ include $(INCLUDE_DIR)/package.mk
 
 # Specify package information for this program. 
 # The variables defined here should be self explanatory.
-define Package/wilddog_watch
+define Package/demo
     SECTION:=utils
     CATEGORY:=Utilities
-    TITLE:=wilddog_watch -- prints a snarky message
-    DEPENDS:=+libstdcpp +libc
+    TITLE:=demo -- prints a snarky message
+    DEPENDS:=+libstdcpp +libc +libwilddog
 endef
 
 
@@ -60,15 +60,15 @@ endef
 
 
 # Specify where and how to install the program. Since we only have one file, 
-# the wilddog_watch executable, install it by copying it to the /bin directory on
+# the demo executable, install it by copying it to the /bin directory on
 # the router. The $(1) variable represents the root directory on the router running 
 # OpenWrt. The $(INSTALL_DIR) variable contains a command to prepare the install 
 # directory if it does not already exist.  Likewise $(INSTALL_BIN) contains the 
 # command to copy the binary file from its current location (in our case the build
 # directory) to the install directory.
-define Package/wilddog_watch/install
+define Package/demo/install
 	$(INSTALL_DIR) $(1)/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wilddog_watch $(1)/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/demo $(1)/bin/
 endef
 
 
@@ -76,4 +76,4 @@ endef
 # The above define directives specify all the information needed, but this
 # line calls BuildPackage which in turn actually uses this information to
 # build a package.
-$(eval $(call BuildPackage,wilddog_watch))
+$(eval $(call BuildPackage,demo))

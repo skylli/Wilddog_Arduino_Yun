@@ -1,5 +1,5 @@
 ##############################################
-# OpenWrt Makefile for wilddog_D program
+# OpenWrt Makefile for wilddogArduinoYun program
 #
 #
 # Most of the variables used here are defined in
@@ -19,7 +19,7 @@
 include $(TOPDIR)/rules.mk
 
 # Name and release number of this package
-PKG_NAME:=wilddog_D
+PKG_NAME:=wilddogArduinoYun
 PKG_RELEASE:=1
 
 
@@ -35,10 +35,10 @@ include $(INCLUDE_DIR)/package.mk
 
 # Specify package information for this program. 
 # The variables defined here should be self explanatory.
-define Package/wilddog_D
+define Package/wilddogArduinoYun
     SECTION:=utils
     CATEGORY:=Utilities
-    TITLE:=wilddog_D -- prints a snarky message
+    TITLE:=wilddogArduinoYun --wilddog-daemon for arduinoYun
     DEPENDS:=+libstdcpp +libc +libwilddog
 endef
 
@@ -60,15 +60,16 @@ endef
 
 
 # Specify where and how to install the program. Since we only have one file, 
-# the wilddog_D executable, install it by copying it to the /bin directory on
+# the wilddogArduinoYun executable, install it by copying it to the /bin directory on
 # the router. The $(1) variable represents the root directory on the router running 
 # OpenWrt. The $(INSTALL_DIR) variable contains a command to prepare the install 
 # directory if it does not already exist.  Likewise $(INSTALL_BIN) contains the 
 # command to copy the binary file from its current location (in our case the build
 # directory) to the install directory.
-define Package/wilddog_D/install
+define Package/wilddogArduinoYun/install
 	$(INSTALL_DIR) $(1)/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wilddog_D $(1)/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wilddog_watch $(1)/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wilddogd $(1)/bin/
 endef
 
 
@@ -76,4 +77,4 @@ endef
 # The above define directives specify all the information needed, but this
 # line calls BuildPackage which in turn actually uses this information to
 # build a package.
-$(eval $(call BuildPackage,wilddog_D))
+$(eval $(call BuildPackage,wilddogArduinoYun))

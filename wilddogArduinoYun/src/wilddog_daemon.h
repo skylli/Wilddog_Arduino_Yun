@@ -17,7 +17,7 @@
 
 #define	_FILE_PATH			"/tmp/wilddog/"
 
-#define _BIN_DAEMON "wilddog_D"
+#define _BIN_DAEMON "wilddogd"
 #define _BIN_WATCH	"wilddog_watch"
 
 

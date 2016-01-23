@@ -11,7 +11,7 @@
 #include <netinet/in.h>
 #include <sys/types.h>
  
-#include "Wilddog_daemon.h"
+#include "wilddog_daemon.h"
 
 //#define SRV_IP "10.28.6.124"
 #define SRV_IP "127.0.0.1"
